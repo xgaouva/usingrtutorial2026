@@ -1,0 +1,2156 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<meta name="progressive" content="true" />
+<meta name="allow-skip" content="true" />
+<meta name="learnr-version-prerender" content="0.11.5" />
+
+<title>Session 9: Modelling 1</title>
+
+<!-- header-includes START -->
+<!-- HEAD_CONTENT -->
+<!-- header-includes END -->
+<!-- HEAD_CONTENT -->
+
+<!-- highlightjs -->
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+<!-- taken from https://github.com/rstudio/rmarkdown/blob/de8a9c38618903627ca509f5401d50a0876079f7/inst/rmd/h/default.html#L293-L343 -->
+<!-- tabsets -->
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+<!-- end tabsets -->
+
+
+</head>
+
+<body>
+<a class='sr-only sr-only-focusable visually-hidden-focusable' href='#learnr-tutorial-content'>Skip to Tutorial Content</a>
+
+
+
+<div class="pageContent band">
+<main class="bandContent page">
+
+<article class="topics" id="learnr-tutorial-content">
+
+<!-- Define programming tip style -->
+<style>
+.tip {
+  background-color: #f5f5f5;
+}
+</style>
+<!-- Define question style -->
+<style>
+.question {
+  color: #5A9DDB;
+}
+</style>
+<!-- Define emphasis style -->
+<style>
+.emphasis {
+  color: #e8301b;
+}
+</style>
+<div id="section-overview" class="section level2">
+<h2>Overview</h2>
+<ul>
+<li>t-test</li>
+<li>Regression</li>
+<li>Anova</li>
+</ul>
+</div>
+<div id="section-basic-statistical-models" class="section level2">
+<h2>Basic Statistical Models</h2>
+<div id="section-section" class="section level3">
+<h3></h3>
+<p>Let us practice with some of the most common statistical analyses in
+R.</p>
+<p>Consult Sections 3 and 4 in <a
+href="https://wdenooy.github.io/Switch2R/index.html"><em>Help, My
+Collaborator Uses R! An Introduction to Reproducible Statistical
+Analyses in R</em></a> and R help on the functions that we use.</p>
+</div>
+<div id="section-example-data" class="section level3">
+<h3>Example data</h3>
+<p>Example data: <code>glbwarm</code> (accessible within this
+tutorial).</p>
+<p>Source: Erik Nisbet; <a href="http://afhayes.com/"
+class="uri">http://afhayes.com/</a></p>
+<p>Inspect the variables in the Environment.</p>
+<p>Main data types: 1. Number: <code>govact</code>,
+<code>posemot</code>, <code>negemot</code>, <code>age</code>. 2.
+Character: <code>ideology</code>, <code>sex</code>,
+<code>partyid</code>.</p>
+<div class="question">
+<p>Inspect variable summaries.</p>
+</div>
+<div class="tutorial-exercise" data-label="inspect" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<pre class="text"><code>summary(glbwarm)</code></pre>
+<pre><code>     govact         posemot         negemot        ideology        
+ Min.   :1.000   Min.   :1.000   Min.   :1.000   Length:815        
+ 1st Qu.:4.000   1st Qu.:2.000   1st Qu.:2.330   Class :character  
+ Median :4.800   Median :3.000   Median :3.670   Mode  :character  
+ Mean   :4.587   Mean   :3.132   Mean   :3.558                     
+ 3rd Qu.:5.600   3rd Qu.:4.000   3rd Qu.:5.000                     
+ Max.   :7.000   Max.   :6.000   Max.   :6.000                     
+      age            sex              partyid         
+ Min.   :17.00   Length:815         Length:815        
+ 1st Qu.:36.00   Class :character   Class :character  
+ Median :51.00   Mode  :character   Mode  :character  
+ Mean   :49.54                                        
+ 3rd Qu.:63.00                                        
+ Max.   :87.00                                        </code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+</div>
+<div id="section-t-test-t.test" class="section level3">
+<h3><em>t</em> test: <code>t.test()</code></h3>
+<p>Different types of <em>t</em> tests can be computed using one
+convenient formula.</p>
+<p>Usage (in <code>?t.test</code>):</p>
+<pre class="r"><code>t.test(x, ...)
+
+### Default S3 method:
+t.test(x, y = NULL,
+       alternative = c(&quot;two.sided&quot;, &quot;less&quot;, &quot;greater&quot;),
+       mu = 0, paired = FALSE, 
+       var.equal = FALSE,
+       conf.level = 0.95, ...)
+
+### S3 method for class &#39;formula&#39;
+t.test(formula, data, subset, na.action, ...)</code></pre>
+<ul>
+<li>the function with just <code>x</code> is for a one sample <em>t</em>
+test: specify the hypothesized population mean with argument
+<code>mu =</code>.<br />
+</li>
+<li>the function with <code>x, y</code> is for paired samples <em>t</em>
+tests.<br />
+</li>
+<li>the function with a formula is for two samples <em>t</em> tests;
+<code>y</code> must be a variable with two categories.</li>
+</ul>
+<div id="section-in-a-pipe" class="section level4">
+<h4><code>_</code> in a pipe</h4>
+<ul>
+<li>All <code>tidyverse</code> functions have the data frame as the
+first argument.</li>
+<li>This is not necessarily the case for base R functions or other
+functions outside the <code>tidyverse</code>.</li>
+<li>If you use piping with these functions, use an underscore
+(<code>_</code>) as a placeholder to indicate where in the function the
+piped-in object should be entered.</li>
+<li>A second use of the <code>_</code> placeholder is when you do not
+use a function in the pipe.</li>
+</ul>
+<p><strong>Example</strong></p>
+<p>The code below tests whether the average arrival delay
+(<code>arr_delay0</code>) differs between the two airports of origin
+(<code>origin</code>) included in the <code>flights4</code> tibble and
+then extracts the t-statistic from the result. Pay attention to the
+placement of the <code>_</code>.</p>
+<div class="tutorial-exercise" data-label="pipedot" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<pre class="text"><code>flights4 |&gt; t.test(arr_delay0 ~ origin, data = _) |&gt; #a function where data is not the first argument
+  _$statistic #not a function</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+</div>
+<div id="section-t-test-practice" class="section level4">
+<h4>t-test Practice</h4>
+<div class="question">
+<p>Use a <em>t</em> test and the <code>glbwarm</code> data object for
+testing the following null hypotheses (in this order):</p>
+<ol style="list-style-type: decimal">
+<li>Average negative emotions about global warming (variable
+<code>negemot</code>) are equal for females and males (variable
+<code>sex</code>) in the population.</li>
+<li>In the population, average negative emotions about global warming
+are 3.0.</li>
+<li>On average, negative emotions about global warming are higher than
+positive emotions about global warming (<code>posemot</code>).</li>
+</ol>
+<p>Send the results to the screen.</p>
+</div>
+<div class="tutorial-exercise" data-label="ttest" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="ttest-hint-1"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># Use the `t.test()` version that matches the kind of t test you need: on one
+# mean, paired samples, or independent samples.</code></pre>
+</div>
+<div class="tutorial-exercise-support" data-label="ttest-hint-2"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># Note that the &#39;data = &#39; argument only works if we use the formula form &#39;y ~ x&#39;.
+# Independent samples t test:
+glbwarm |&gt; t.test(negemot ~ sex, data = _)
+# For the other versions, the tibble name must be used and the dollar sign to
+# fuly define the variable.
+# t test on one mean (complete it yourself):
+t.test(glbwarm$negemot, ... )</code></pre>
+</div>
+<div class="tutorial-exercise-support" data-label="ttest-hint-3"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># The code checker expects the three tests in the exact order as specified in
+# the question.</code></pre>
+</div>
+</div>
+</div>
+<div id="section-intermezzo-extracting-statistical-results-using-lists"
+class="section level3">
+<h3>Intermezzo: Extracting Statistical Results Using Lists</h3>
+<p>The summary of results given when you run a <em>t</em> test or
+another statistical test is great, but it is useful to be able to access
+individual elements of that result (e.g. the p- or T-value) separately,
+either to use them in calculations or present them in reproducible
+reports.</p>
+<p>In R, the results of statistical tests are stored as lists. Let’s
+briefly look at how to extract elements from a list.</p>
+<div id="section-lists" class="section level4">
+<h4>Lists</h4>
+</div>
+</div>
+<div id="section-section-1" class="section level3">
+<h3></h3>
+<ul>
+<li>Vector: Collection of one type of elements.</li>
+<li>List: Collection of (possibly) multiple types of elements.</li>
+</ul>
+<p>A <code>List</code> may store anything (your perfect cupboard?)</p>
+<p>Examples:</p>
+<ol style="list-style-type: decimal">
+<li>Data frame (or tibble): list of (logic/num/char) vectors
+(variables).<br />
+Restriction: All vectors have the same length.<br />
+</li>
+<li>Statistical results: list with coefficients, etc.<br />
+</li>
+<li>Nested data: More than one value per variable per case.</li>
+</ol>
+<div id="section-extracting-statistical-results" class="section level4">
+<h4>Extracting statistical results</h4>
+<p>A <em>t</em> test yields a results object, which is a list.</p>
+<div class="tutorial-exercise" data-label="storeresults"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># Store the results of a t test.
+result_t &lt;- glbwarm |&gt; t.test(negemot ~ sex, data = _)
+result_t #Default print method for these results.</code></pre>
+<pre><code>
+    Welch Two Sample t-test
+
+data:  negemot by sex
+t = 3.3625, df = 798.32, p-value = 0.0008092
+alternative hypothesis: true difference in means between group female and group male is not equal to 0
+95 percent confidence interval:
+ 0.1492659 0.5679741
+sample estimates:
+mean in group female   mean in group male 
+            3.733118             3.374497 </code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<ul>
+<li>Results of t test are saved as data object <code>result_t</code>
+here, so we can inspect the results object in the Environment (if you
+run this code in RStudio).</li>
+</ul>
+</div>
+</div>
+<div id="section-section-2" class="section level3">
+<h3></h3>
+<p>Function <code>str()</code> shows the contents of a list.</p>
+<div class="question">
+<p>Try to recognize the contents of this list.</p>
+</div>
+<div class="tutorial-exercise" data-label="str" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<pre class="text"><code>str(result_t)</code></pre>
+<pre><code>List of 10
+ $ statistic  : Named num 3.36
+  ..- attr(*, &quot;names&quot;)= chr &quot;t&quot;
+ $ parameter  : Named num 798
+  ..- attr(*, &quot;names&quot;)= chr &quot;df&quot;
+ $ p.value    : num 0.000809
+ $ conf.int   : num [1:2] 0.149 0.568
+  ..- attr(*, &quot;conf.level&quot;)= num 0.95
+ $ estimate   : Named num [1:2] 3.73 3.37
+  ..- attr(*, &quot;names&quot;)= chr [1:2] &quot;mean in group female&quot; &quot;mean in group male&quot;
+ $ null.value : Named num 0
+  ..- attr(*, &quot;names&quot;)= chr &quot;difference in means between group female and group male&quot;
+ $ stderr     : num 0.107
+ $ alternative: chr &quot;two.sided&quot;
+ $ method     : chr &quot;Welch Two Sample t-test&quot;
+ $ data.name  : chr &quot;negemot by sex&quot;
+ - attr(*, &quot;class&quot;)= chr &quot;htest&quot;</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<ul>
+<li>List elements are different: one number, two numbers, character
+string.<br />
+</li>
+<li>“names” attribute: the name(s) of the list element value(s).</li>
+<li>other attribute: other description of the list element value, e.g.,
+the confidence level of the confidence interval.</li>
+</ul>
+<p>Note:</p>
+<ul>
+<li><em>t</em> test results are stored as object of class:
+<code>htest</code> (bottom of the output);</li>
+<li>Other R functions (e.g., <code>print()</code>) know what to do with
+the list.</li>
+</ul>
+<div id="section-extracting-an-element-from-a-list"
+class="section level4">
+<h4>Extracting an element from a list</h4>
+<p>We get elements from a list:</p>
+<ul>
+<li>Appending the element name between <code>[[]]</code> to the list
+name;</li>
+<li>Appending the element name with <code>$</code> to the list
+name.</li>
+</ul>
+<div class="question">
+<p>Extract the confidence interval from the t test results data object
+(<code>result_t</code>) with <code>[[]]</code> and show (print) it
+(instead of saving it as a new data object).</p>
+</div>
+<div class="tutorial-exercise" data-label="extractbracket"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<!-- To hide the solution, use a textual hint. -->
+<div id="section-extractbracket-hint">
+<p><strong>Hint:</strong> The element name must be in quotation marks.
+See the book section on <em>Recursive Vectors (Lists)</em>.</p>
+</div>
+<div class="tutorial-exercise-support"
+data-label="extractbracket-solution" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<pre class="text"><code>result_t[[&quot;conf.int&quot;]]</code></pre>
+</div>
+<div class="question">
+<p>Do the same thing but now use <code>$</code>.</p>
+</div>
+<div class="tutorial-exercise" data-label="extractdollar"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<!-- To hide the solution, use a textual hint. -->
+<div id="section-extractdollar-hint">
+<p><strong>Hint:</strong> See the book section on <em>Recursive Vectors
+(Lists)</em>.</p>
+</div>
+<div class="tutorial-exercise-support"
+data-label="extractdollar-solution" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<pre class="text"><code>result_t$conf.int</code></pre>
+</div>
+</div>
+</div>
+<div id="section-section-3" class="section level3">
+<h3></h3>
+<p>Let’s go one level down in the list of t test results:</p>
+<ul>
+<li>Extract the value of an attribute with the <code>attributes()</code>
+function.</li>
+</ul>
+<pre><code>## List of 1
+##  $ conf.int: num [1:2] 0.149 0.568
+##   ..- attr(*, &quot;conf.level&quot;)= num 0.95</code></pre>
+<div class="question">
+<p>Show the confidence level (as a number) using only dollar signs
+(<code>$</code>), not square brackets (<code>[[]]</code>). Show the
+result on the screen.</p>
+</div>
+<div class="tutorial-exercise" data-label="extractlevel"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="extractlevel-hint-1"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># The confidence level is an attribute (`attr` in the structure overview presented above), so use the `attributes()` function.
+attributes()</code></pre>
+</div>
+<div class="tutorial-exercise-support" data-label="extractlevel-hint-2"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># Pull out the confidence interval from the results. Complete this code.
+attributes(result_t)</code></pre>
+</div>
+<div class="tutorial-exercise-support" data-label="extractlevel-hint-3"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># Have a look at the output of the attributes() function. How can you get the number of the confidence level?
+attributes(result_t$conf.int)</code></pre>
+</div>
+</div>
+<div id="section-section-4" class="section level3">
+<h3></h3>
+<p>Instead of the attribute value, we can get the attribute name with
+the <code>names()</code> function.</p>
+<div class="question">
+<p>Extract the label “conf.level” from the list of t test results.</p>
+</div>
+<div class="tutorial-exercise" data-label="extractlabel"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="extractlabel-hint-1"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># If you want the name of an attribute, apply the `names()` function to an attribute that you extract with attributes().
+names(attributes( ))</code></pre>
+</div>
+</div>
+<div id="section-section-5" class="section level3">
+<h3></h3>
+<p>Let us practice some more.</p>
+<div class="question">
+<p>Get the name and value (rounded to one decimal place) of the mean of
+the second group in the results of the <em>t</em> test
+(<code>result_t</code>).</p>
+</div>
+<div class="tutorial-exercise" data-label="paste0" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="paste0-hint-1"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># Build your code in steps. First, find the group means in the results.
+str(result_t)</code></pre>
+</div>
+<div class="tutorial-exercise-support" data-label="paste0-hint-2"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># Second, pull the mean from the results data object. You know how to get only the second mean (complete the code below).
+result_t$estimate</code></pre>
+</div>
+<div class="tutorial-exercise-support" data-label="paste0-hint-3"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># Third, round the mean with the round() function (use Help). Complete the code below.
+round(result_t$estimate[[2]] )</code></pre>
+</div>
+<div class="tutorial-exercise-support" data-label="paste0-hint-4"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># Fourth, pull the name of the second group from the results data object. Complete the code below.
+names(result_t$estimate)[2]</code></pre>
+</div>
+</div>
+<div id="section-section-6" class="section level3">
+<h3></h3>
+<div class="tip">
+<p><strong>Programming Tips</strong></p>
+<ul>
+<li>Attribute names and attribute values are nested within a list
+element.<br />
+</li>
+<li><code>attributes()</code> creates a list; select from this list with
+$ or [[]].</li>
+<li>‘Drill’ into lower levels step by step:
+<ul>
+<li><code>attributes(result_t)</code> returns all first-level names and
+attributes (as a list);</li>
+<li><code>attributes(result_t$conf.int)</code> returns all attributes of
+this element;</li>
+<li><code>attributes(result_t$conf.int)$conf.level</code> gives the
+value of the conf.level attribute;<br />
+</li>
+<li><code>names(attributes(result_t$conf.int))</code> returns the name
+of the conf.int attribute.<br />
+</li>
+</ul></li>
+<li><code>result_t$conf.int[1]</code> yields the lower limit of the
+confidence interval</li>
+</ul>
+</div>
+</div>
+<div id="section-f-test-on-two-variances-var.test"
+class="section level3">
+<h3>F test on Two Variances: <code>var.test()</code></h3>
+<p>Let’s return to our <em>t</em> test. In contrast to SPSS, R only
+gives you what you ask for.</p>
+<ul>
+<li>If you ask for a <em>t</em> test, you get a <em>t</em> test but not
+checks on assumptions.</li>
+<li>You have to apply those checks yourself.</li>
+</ul>
+<p>The version of the independent samples <em>t</em> test that we must
+use, depends on whether the population variances are equal for the two
+groups.</p>
+<div class="question">
+<p>Use the function <code>var.test</code> to test if <code>govact</code>
+variances are equal for females and males in the population.</p>
+<p>Use the <code>glbwarm</code> data object and store the results as a
+new data object named <code>vartest</code>.</p>
+</div>
+<div class="tutorial-exercise" data-label="vartest1" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<pre class="text"><code>vartest &lt;- ____</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<!-- To hide the solution, use a textual hint. -->
+<div id="section-vartest1-hint">
+<p><strong>Hint:</strong> Have a look at the help for function
+<code>var.test</code>. It is important that you get used to the way R
+presents help on statistical functions.</p>
+</div>
+<div class="tutorial-exercise-support" data-label="vartest1-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+
+</div>
+<div class="tip">
+<p><strong>Remember</strong></p>
+<ul>
+<li>R formula: dependent variable/outcome ~ independent
+variable/predictor (and more).</li>
+</ul>
+</div>
+</div>
+<div id="section-section-7" class="section level3">
+<h3></h3>
+<div class="question">
+<p>Pull the p value from data object <code>vartest</code> that you have
+just created.</p>
+<p>Is the test on equal population variances statistically
+significant?</p>
+</div>
+<div class="tutorial-exercise" data-label="vartestp" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<!-- To hide the solution, use a textual hint. -->
+<div id="section-vartestp-hint">
+<p><strong>Hint:</strong> Review Session 5 if you do not know how to do
+this. Remember: function <code>str()</code> is handy to see the contents
+(structure) of a list.</p>
+</div>
+<div class="tutorial-exercise-support" data-label="vartestp-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>vartest$p.value</code></pre>
+</div>
+</div>
+<div id="section-section-8" class="section level3">
+<h3></h3>
+<p>In R, we can use a function within an argument of another
+function.</p>
+<p>Example for an independent samples <em>t</em> test:</p>
+<ul>
+<li><code>var-equal</code> argument is <code>FALSE</code> by
+default.</li>
+<li>It must be <code>TRUE</code> if the <em>p</em> value of
+<code>var.test()</code> is larger then .05.</li>
+</ul>
+<div class="question">
+<p>Integrate the F test on equal population variances in the <em>t</em>
+test, such that the <em>t</em> test automatically uses the correct
+version: with or without equal population variances assumed.</p>
+<p>Send the results to the screen (do not save it as a data object).</p>
+</div>
+<div class="tutorial-exercise" data-label="ttest2" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<pre class="text"><code>t.test(govact ~ sex, data = glbwarm, var.equal = _____ )</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<div class="tutorial-exercise-support" data-label="ttest2-hint-1"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># You already executed the t test in this tutorial. Add the var.equal argument.
+t.test(govact ~ sex, data = glbwarm)</code></pre>
+</div>
+<div class="tutorial-exercise-support" data-label="ttest2-hint-2"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># In the preceding exercise, you pulled the p value from the stored test result.
+vartest$p.value
+# Add it to the var.equal argument in such a way that a p value over .05 yields TRUE.</code></pre>
+</div>
+<div class="tutorial-exercise-support" data-label="ttest2-hint-3"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># Replace the stored test result by the test function itself.
+t.test(govact ~ sex, data = glbwarm, var.equal = vartest$p.value &gt; 0.05)</code></pre>
+</div>
+</div>
+<div id="section-linear-regression-lm" class="section level3">
+<h3>Linear Regression: <code>lm()</code></h3>
+<p>Usage (in <code>?lm</code>):</p>
+<pre class="r"><code>lm(formula, data, subset, weights, na.action,
+   method = &quot;qr&quot;, model = TRUE, x = FALSE, y = FALSE, qr = TRUE,
+   singular.ok = TRUE, contrasts = NULL, offset, ...)</code></pre>
+<p>See (the <a href="https://r4ds.had.co.nz/">first edition</a>) book
+p. 358-371 {Section 23.4} for using regression formulas: <em>In the
+second edition, modeling part has been removed.</em></p>
+<ul>
+<li>including interactions and</li>
+<li>transformations within a formula.</li>
+</ul>
+<div class="question">
+<p>Use <code>lm()</code> and tibble <code>glbwarm</code> to predict
+support for governmental action (<code>govact</code>) from age, negative
+emotions and party identification.</p>
+<p>Store the results in data object <code>model_1</code>.</p>
+</div>
+<div class="tutorial-exercise" data-label="lm1" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<!-- To hide the solution, use a textual hint. -->
+<div id="section-lm1-hint">
+<p><strong>Hint:</strong> <code>lm()</code> is not a tidyverse function,
+so you have to use the <code>data =</code> argument.</p>
+<p>You can supply the name of the tibble (<code>glbwarm</code>) or pipe
+this tibble into the <code>lm()</code> function using the dot
+(<code>.</code>).</p>
+</div>
+<div class="tutorial-exercise-support" data-label="lm1-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+
+</div>
+</div>
+<div id="section-section-9" class="section level3">
+<h3></h3>
+<p>For quick inspection, data objects for results of statistical
+analyses always have:</p>
+<ul>
+<li>a <code>summary()</code> function;</li>
+<li>a <code>print()</code> function .</li>
+</ul>
+<p>Not for presentation of results!</p>
+<div class="question">
+<p>Inspect the regression results (stored as <code>model_1</code>) with
+<code>summary()</code> and <code>print()</code>.</p>
+<p>What happened to the character variable?</p>
+</div>
+<div class="tutorial-exercise" data-label="lm2" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+</div>
+<div id="section-linear-regression-two-way-interaction"
+class="section level3">
+<h3>Linear Regression: Two-Way Interaction</h3>
+<p><code>lm()</code> takes care of:</p>
+<ul>
+<li>creating dummies/indicator variables for a categorical predictor
+(character string or factor) - see preceding exercise;</li>
+<li>creating interaction variables.</li>
+</ul>
+<p>(This is easier than in SPSS.)</p>
+<div class="question">
+<p>Add an interaction effect between negative emotions (numeric) and age
+(numeric, in decades) to the regression model.</p>
+<p>Save the results as data object <code>model_1a</code>.</p>
+<p>Show the results with <code>print()</code>. Can you interpret the
+interaction effect?</p>
+</div>
+<div class="tutorial-exercise" data-label="lm3" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<!-- To hide the solution, use a textual hint. -->
+<div id="section-lm3-hint">
+<p><strong>Hint:</strong> An interaction term (<code>var1*var2</code>)
+in a regression formula yields the partial effects of the individual
+variables and their interaction effect(s).</p>
+</div>
+<div class="tutorial-exercise-support" data-label="lm3-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>model_1a &lt;- lm(govact ~ age*negemot + partyid, data = glbwarm)
+print(model_1a)</code></pre>
+</div>
+</div>
+<div id="section-section-10" class="section level3">
+<h3></h3>
+<div class="question">
+<p>Now, predict support for governmental action (<code>govact</code>)
+from age and an interaction effect between negative emotions (numeric)
+and party identification (categorical).</p>
+<p>Send the results to the screen. Can you make sense of the
+coefficients?</p>
+</div>
+<div class="tutorial-exercise" data-label="lm4" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<!-- To hide the solution, use a textual hint. -->
+<div id="section-lm4-hint">
+<p><strong>Hint:</strong> R creates all dummy variables and all
+interaction variables. That is convenient!</p>
+</div>
+<div class="tutorial-exercise-support" data-label="lm4-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>lm(govact ~ age + negemot*partyid, data = glbwarm)</code></pre>
+</div>
+</div>
+<div id="section-analysis-of-variance-lm-and-caranova"
+class="section level3">
+<h3>Analysis of Variance: <code>lm()</code> and
+<code>car::Anova()</code></h3>
+<p>In R, analysis of variance consists of two steps.</p>
+<p><strong>Step 1: ANOVA is linear regression with special contrasts
+(<code>contr.sum</code>).</strong></p>
+<ul>
+<li>Contrast <code>contr.sum</code> gives deviations from the mean.</li>
+<li>In analysis of variance, (main) effects are deviations from the
+(grand) mean.</li>
+<li>The <code>contrasts =</code> argument requires:
+<ul>
+<li>a list: <code>contrasts = list()</code>;</li>
+<li>with contrast type for each categorical predictor:</li>
+<li><code>contrasts = list(sex = contr.sum, partyid = contr.sum)</code></li>
+</ul></li>
+</ul>
+<div class="question">
+<p>Estimate a regression model with support for governmental action
+(<code>govact</code>) predicted from respondent’s sex and party
+identification, and the interaction between the two predictors.</p>
+<p>Use <code>contr.sum</code> contrasts and save the results as data
+object <code>model_2</code>.</p>
+</div>
+<div class="tutorial-exercise" data-label="anova1" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<pre class="text"><code>model_2 &lt;- lm(govact ~ sex * partyid, data = glbwarm, contrasts= ____ )</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<!-- To hide the solution, use a textual hint. -->
+<div id="section-anova1-hint">
+<p><strong>Hint:</strong> The <code>contrasts</code> argument requires a
+list of variable name and contrast type pairs.</p>
+</div>
+<div class="tutorial-exercise-support" data-label="anova1-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+
+</div>
+</div>
+<div id="section-section-11" class="section level3">
+<h3></h3>
+<p><strong>Step 2: Calculate the sums of squares partition.</strong></p>
+<p>Functions:</p>
+<ul>
+<li><code>stats::anova()</code> for balanced designs.</li>
+<li><code>car::Anova()</code> for (balanced and) unbalanced designs
+(Type !! or III sums of squares).</li>
+</ul>
+<div class="question">
+<p>Use the <code>Anova()</code> function to show the sums of squares
+partition with associated F tests of <code>model_2</code> on the
+screen.</p>
+</div>
+<div class="tutorial-exercise" data-label="anova2" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":true,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<!-- To hide the solution, use a textual hint. -->
+<div id="section-anova2-hint">
+<p><strong>Hint:</strong> The <code>car</code> package has been loaded
+by the tutorial, so you do not have to include it if you use the
+<code>Anova()</code> function.</p>
+</div>
+<div class="tutorial-exercise-support" data-label="anova2-solution"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code>Anova(model_2)</code></pre>
+</div>
+</div>
+<div id="section-section-12" class="section level3">
+<h3></h3>
+<p>The anova functions return a data frame, which you can use as any
+data frame.</p>
+<p>For example, knit it to a pretty (HTML or PDF) table with
+<code>knitr::kable()</code>.</p>
+<p>We will do that in the tutorial on Thursday.</p>
+</div>
+<div id="section-missing-values" class="section level3">
+<h3>Missing Values</h3>
+<p>How a <code>stat::</code> package functions deal with missing values
+depends on the <code>na.action =</code> argument:</p>
+<ul>
+<li><code>na.omit</code> (default and preferred) or
+<code>na.exclude</code>: listwise deletion;</li>
+<li><code>na.fail</code>: stops with an error.</li>
+</ul>
+<div class="question">
+<p>Check and, if necessary, set the <code>na.action</code> option in the
+console of RStudio.</p>
+</div>
+<div class="tutorial-exercise" data-label="NAoption" data-completion="1"
+data-diagnostics="1" data-startover="1" data-lines="0"
+data-pipe="|&gt;">
+<pre class="text"><code># Get the current option for na.action.
+getOption(&quot;na.action&quot;)
+# Set the option (if necessary).
+options(na.action = &quot;na.omit&quot;)</code></pre>
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+</div>
+</div>
+<div id="section-fancy-stuff" class="section level2">
+<h2>Fancy Stuff</h2>
+<p>If you can execute regression models in R, you can also execute these
+using Bayesian statistics instead of traditional (frequentist)
+statistics.</p>
+<p>The popularity of Bayesian statistics as an alternative to null
+hypothesis significance testing is growing. If you want to be among the
+first in your field going Bayesian, check out the short introduction
+provided in <a
+href="https://wdenooy.github.io/Switch2Bayesian/index.html">Help, My
+Collaborator Goes Bayesian! Why And How To Apply Bayesian Data
+Analysis</a>. Section 3.2 of the document offers a short introduction to
+using the <code>rstanarm</code> package for Bayesian data analysis.</p>
+<p>The below code estimates a regression model predicting support for
+governmental action (<code>govact</code>) from age, negative emotions
+and party identification, with an interaction effect of age with
+negative emotions.</p>
+<pre class="r"><code># Load the rstanarm package.
+library(rstanarm)
+# Estimate the regression model with rstanarm.
+model_1aBayes &lt;- rstanarm::stan_glm(govact ~ age * negemot + partyid,
+                                    data = glbwarm)
+# Standard output to screen.
+print(model_1aBayes)</code></pre>
+<pre><code>## stan_glm
+##  family:       gaussian [identity]
+##  formula:      govact ~ age * negemot + partyid
+##  observations: 815
+##  predictors:   6
+## ------
+##                    Median MAD_SD
+## (Intercept)         4.5    0.3  
+## age                 0.0    0.0  
+## negemot             0.1    0.1  
+## partyidIndependent -0.3    0.1  
+## partyidRepublican  -0.6    0.1  
+## age:negemot         0.0    0.0  
+## 
+## Auxiliary parameter(s):
+##       Median MAD_SD
+## sigma 1.1    0.0   
+## 
+## ------
+## * For help interpreting the printed output see ?print.stanreg
+## * For info on the priors used see ?prior_summary.stanreg</code></pre>
+<p>Bayesian estimation yields a probability distribution for every
+parameter.</p>
+<p>The printed summary gives the median of the probability distribution
+of a regression coefficient as its point estimate. In addition, it shows
+the Mean Average Deviation of the probability distribution: a simple
+type of standard deviation.</p>
+<p>It is easy to get the posterior distributions as a data frame or
+tibble, so you can find any probability you like for a parameter.</p>
+<div class="tutorial-exercise" data-label="posterior1"
+data-completion="1" data-diagnostics="1" data-startover="1"
+data-lines="0" data-pipe="|&gt;">
+<pre class="text"><code># Extract the posteriors from the fitted model to a tibble.
+posteriors &lt;- as_tibble(model_1aBayes)
+# Overview of variables in posteriors: each independent variable and the error term (sigma).
+str(posteriors)</code></pre>
+<pre><code>tibble [4,000 × 7] (S3: tbl_df/tbl/data.frame)
+ $ (Intercept)       : num [1:4000] 4.39 4.28 4.61 4.29 4.21 ...
+ $ age               : num [1:4000] -0.02 -0.0183 -0.0283 -0.022 -0.0174 ...
+ $ negemot           : num [1:4000] 0.1342 0.1366 0.0825 0.2359 0.205 ...
+ $ partyidIndependent: num [1:4000] -0.345 -0.334 -0.349 -0.268 -0.343 ...
+ $ partyidRepublican : num [1:4000] -0.587 -0.597 -0.46 -0.566 -0.648 ...
+ $ age:negemot       : num [1:4000] 0.00572 0.00585 0.00742 0.00459 0.0046 ...
+ $ sigma             : num [1:4000] 1.07 1.08 1.06 1.08 1.14 ...</code></pre>
+<pre class="text"><code># Calculate the probability that the effect of negemot is larger than 0 in the population.
+prob &lt;- posteriors |&gt;
+  summarize(b_negemot = mean(negemot &gt; 0))
+# Plot the probability distribution and display this information.
+posteriors |&gt; 
+  mutate(positive = negemot &gt; 0) |&gt;
+  ggplot(mapping = aes(x = negemot)) +
+    geom_histogram(
+      aes(fill = positive),
+      boundary = 0,
+      bins = 30,
+      show.legend = FALSE
+      ) +
+    geom_text(aes(label = prob$b_negemot, x = 0.15, y = 100))</code></pre>
+<img src="modelling1_files/figure-html/posterior1-1.png" width="624" />
+<script type="application/json" data-ui-opts="1">{"engine":"r","has_checker":false,"caption":"<span data-i18n=\"text.enginecap\" data-i18n-opts=\"{&quot;engine&quot;:&quot;R&quot;}\">R Code<\/span>"}</script>
+</div>
+<p>The function <code>launch_shinystan()</code> in the
+<code>shinystan::</code> package (automatically loaded by package
+<code>rstanarm::</code>) offers an interactive overview of estimation
+and model checks and results.</p>
+<pre class="r"><code>shinystan::launch_shinystan(model_1aBayes)
+# Note: This function does not work from within a tutorial.</code></pre>
+</div>
+<div id="section-up-next" class="section level2">
+<h2>Up Next</h2>
+<ul>
+<li>Next session: Modelling 2/Presenting results
+<ul>
+<li>Note: Statistical analyses are not necessary for the Data Project.
+The Data Project focuses on visualizations. You can, however, use
+statistical analysis to detect patterns in your data that you then try
+to visualize. Next session, we will discuss how to do this. Although R
+offers some off-the-shelf plots for presenting statistical results, it
+is usually better to create a custom plot that hopefully is more
+attractive and more informative than off-the-shelf statistical
+plots.</li>
+</ul></li>
+<li>Catch up</li>
+<li>Check-in with your Study Buddy</li>
+<li>Prepare (see Canvas Module Guide):
+<ul>
+<li>Complete the homework (homework room, study buddy, alone…)</li>
+<li>Submit questions by 4 PM the day before each tutorial on the Canvas
+Discussion Forum 
+<script type="application/shiny-prerendered" data-context="server-start">
+# Ensure that libraries are loaded.
+library(tidyverse)
+library(learnr)
+library(gradethis)
+library(knitr)
+library(kableExtra)
+library(haven) #For importing SPSS data files.
+library(car) #For ANOVA.  
+library(texreg) #For pretty regression results.
+library(effects) #For two-way interaction plots.
+library(broom) #For cleaning up statistical results.
+
+tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::register_http_handlers(session, metadata = NULL)
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::prepare_tutorial_state(session)
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::i18n_observe_tutorial_language(input, session)
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+session$onSessionEnded(function() {
+        learnr:::event_trigger(session, "session_stop")
+      })
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="data">
+# Ensure that the data is loaded for the remainder of this tutorial.
+flights4 <- UsingRTutorials::flights4
+glbwarm <- UsingRTutorials::glbwarm
+glbwarm_spss <- UsingRTutorials::glbwarm_spss
+# The estimated regression model with rstanarm. 
+model_1aBayes <- UsingRTutorials::model_1aBayes
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-inspect-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-inspect-code-editor`)), session)
+output$`tutorial-exercise-inspect-output` <- renderUI({
+  `tutorial-exercise-inspect-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "inspect", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "inspect", code = "summary(glbwarm)", 
+        opts = list(label = "\"inspect\"", exercise = "TRUE", 
+            exercise.eval = "TRUE"), engine = "r")), code_check = NULL, 
+    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
+    options = list(eval = TRUE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "modelling1_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "inspect", exercise = TRUE, exercise.eval = TRUE, 
+        code = "summary(glbwarm)", out.width.px = 624, out.height.px = 384, 
+        params.src = "inspect, exercise = TRUE, exercise.eval = TRUE", 
+        fig.alt = NULL, fig.num = 0, exercise.df_print = "paged"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-pipedot-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-pipedot-code-editor`)), session)
+output$`tutorial-exercise-pipedot-output` <- renderUI({
+  `tutorial-exercise-pipedot-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "pipedot", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "pipedot", code = "flights4 |> t.test(arr_delay0 ~ origin, data = _) |> #a function where data is not the first argument\n  _$statistic #not a function", 
+        opts = list(label = "\"pipedot\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "pipedot", exercise = TRUE, code = c("flights4 |> t.test(arr_delay0 ~ origin, data = _) |> #a function where data is not the first argument", 
+        "  _$statistic #not a function"), out.width.px = 624, 
+        out.height.px = 384, params.src = "pipedot, exercise = TRUE", 
+        fig.num = 0, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-ttest-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-ttest-code-editor`)), session)
+output$`tutorial-exercise-ttest-output` <- renderUI({
+  `tutorial-exercise-ttest-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "ttest", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "ttest", code = "", opts = list(
+        label = "\"ttest\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = structure(c("gradethis::grade_code(", 
+    "  correct = \"\", ", "  incorrect = \"\"", "  )"), chunk_opts = list(
+        label = "ttest-check")), solution = structure(c("glbwarm |> t.test(negemot ~ sex, data = _)", 
+    "t.test(glbwarm$negemot, mu = 3.0)", "t.test(glbwarm$negemot, glbwarm$posemot, paired = TRUE)"
+    ), chunk_opts = list(label = "ttest-solution", exercise.reveal_solution = FALSE)), 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "modelling1_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "ttest", exercise = TRUE, code = "", out.width.px = 624, 
+        out.height.px = 384, params.src = "ttest, exercise = TRUE", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-storeresults-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-storeresults-code-editor`)), session)
+output$`tutorial-exercise-storeresults-output` <- renderUI({
+  `tutorial-exercise-storeresults-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "storeresults", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "storeresults", code = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+        opts = list(label = "\"storeresults\"", exercise = "TRUE", 
+            exercise.eval = "TRUE"), engine = "r")), code_check = NULL, 
+    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
+    options = list(eval = TRUE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "modelling1_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "storeresults", exercise = TRUE, exercise.eval = TRUE, 
+        code = c("# Store the results of a t test.", "result_t <- glbwarm |> t.test(negemot ~ sex, data = _)", 
+        "result_t #Default print method for these results."), 
+        out.width.px = 624, out.height.px = 384, params.src = "storeresults,exercise=TRUE, exercise.eval = TRUE", 
+        fig.alt = NULL, fig.num = 0, exercise.df_print = "paged"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-str-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-str-code-editor`)), session)
+output$`tutorial-exercise-str-output` <- renderUI({
+  `tutorial-exercise-str-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "str", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+    chunks = list(list(label = "storeresults", code = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+        opts = list(label = "\"storeresults\"", exercise = "TRUE", 
+            exercise.eval = "TRUE"), engine = "r"), list(label = "str", 
+        code = "str(result_t)", opts = list(label = "\"str\"", 
+            exercise = "TRUE", exercise.eval = "TRUE", exercise.setup = "\"storeresults\""), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = TRUE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "str", exercise = TRUE, exercise.eval = TRUE, 
+        exercise.setup = "storeresults", code = "str(result_t)", 
+        out.width.px = 624, out.height.px = 384, params.src = "str, exercise=TRUE, exercise.eval = TRUE, exercise.setup = \"storeresults\"", 
+        fig.alt = NULL, fig.num = 0, exercise.df_print = "paged"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-extractbracket-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-extractbracket-code-editor`)), session)
+output$`tutorial-exercise-extractbracket-output` <- renderUI({
+  `tutorial-exercise-extractbracket-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "extractbracket", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+    chunks = list(list(label = "storeresults", code = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+        opts = list(label = "\"storeresults\"", exercise = "TRUE", 
+            exercise.eval = "TRUE"), engine = "r"), list(label = "extractbracket", 
+        code = "", opts = list(label = "\"extractbracket\"", 
+            exercise = "TRUE", exercise.setup = "\"storeresults\""), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure(c("gradethis::grade_code(", "  correct = \"\", ", 
+    "  incorrect = \"Perhaps you used the element number in the list instead of the element name to extract the confidence level. That is OK.\"", 
+    "  )"), chunk_opts = list(label = "extractbracket-check")), 
+    solution = structure("result_t[[\"conf.int\"]]", chunk_opts = list(
+        label = "extractbracket-solution")), tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "extractbracket", exercise = TRUE, exercise.setup = "storeresults", 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "extractbracket, exercise = TRUE, exercise.setup = \"storeresults\"", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-extractdollar-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-extractdollar-code-editor`)), session)
+output$`tutorial-exercise-extractdollar-output` <- renderUI({
+  `tutorial-exercise-extractdollar-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "extractdollar", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+    chunks = list(list(label = "storeresults", code = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+        opts = list(label = "\"storeresults\"", exercise = "TRUE", 
+            exercise.eval = "TRUE"), engine = "r"), list(label = "extractdollar", 
+        code = "", opts = list(label = "\"extractdollar\"", exercise = "TRUE", 
+            exercise.setup = "\"storeresults\""), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = structure(c("gradethis::grade_code(", 
+    "  correct = \"`$conf.int` is shorthand for `[['conf.int']]`.\", ", 
+    "  incorrect = \"\"", "  )"), chunk_opts = list(label = "extractdollar-check")), 
+    solution = structure("result_t$conf.int", chunk_opts = list(
+        label = "extractdollar-solution")), tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "extractdollar", exercise = TRUE, exercise.setup = "storeresults", 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "extractdollar, exercise = TRUE, exercise.setup = \"storeresults\"", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-extractlevel-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-extractlevel-code-editor`)), session)
+output$`tutorial-exercise-extractlevel-output` <- renderUI({
+  `tutorial-exercise-extractlevel-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "extractlevel", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+    chunks = list(list(label = "storeresults", code = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+        opts = list(label = "\"storeresults\"", exercise = "TRUE", 
+            exercise.eval = "TRUE"), engine = "r"), list(label = "extractlevel", 
+        code = "", opts = list(label = "\"extractlevel\"", exercise = "TRUE", 
+            exercise.setup = "\"storeresults\""), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = structure(c("gradethis::grade_code(", 
+    "  correct = \"We can use the dolar sign directly after the attributes() function. Isn't that nice?\", ", 
+    "  incorrect = \"If you just get the number 0.95, you are fine. Probably, you used [[]] instead of $. If you get more than just the number, you have to go down one level in the list that `attributes()` generates.\"", 
+    "  )"), chunk_opts = list(label = "extractlevel-check")), 
+    solution = structure("attributes(result_t$conf.int)$conf.level", chunk_opts = list(
+        label = "extractlevel-solution", exercise.reveal_solution = FALSE)), 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "modelling1_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "extractlevel", exercise = TRUE, exercise.setup = "storeresults", 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "extractlevel, exercise = TRUE, exercise.setup = \"storeresults\"", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-extractlabel-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-extractlabel-code-editor`)), session)
+output$`tutorial-exercise-extractlabel-output` <- renderUI({
+  `tutorial-exercise-extractlabel-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "extractlabel", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+    chunks = list(list(label = "storeresults", code = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+        opts = list(label = "\"storeresults\"", exercise = "TRUE", 
+            exercise.eval = "TRUE"), engine = "r"), list(label = "extractlabel", 
+        code = "", opts = list(label = "\"extractlabel\"", exercise = "TRUE", 
+            exercise.setup = "\"storeresults\""), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = structure(c("gradethis::grade_code(", 
+    "  correct = \"\", ", "  incorrect = \"Did you use [[]] instead of $?\"", 
+    "  )"), chunk_opts = list(label = "extractlabel-check")), 
+    solution = structure("names(attributes(result_t$conf.int))", chunk_opts = list(
+        label = "extractlabel-solution", exercise.reveal_solution = FALSE)), 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "modelling1_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "extractlabel", exercise = TRUE, exercise.setup = "storeresults", 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "extractlabel, exercise = TRUE, exercise.setup = \"storeresults\"", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-paste0-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-paste0-code-editor`)), session)
+output$`tutorial-exercise-paste0-output` <- renderUI({
+  `tutorial-exercise-paste0-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "paste0", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+    chunks = list(list(label = "storeresults", code = "# Store the results of a t test.\nresult_t <- glbwarm |> t.test(negemot ~ sex, data = _)\nresult_t #Default print method for these results.", 
+        opts = list(label = "\"storeresults\"", exercise = "TRUE", 
+            exercise.eval = "TRUE"), engine = "r"), list(label = "paste0", 
+        code = "", opts = list(label = "\"paste0\"", exercise = "TRUE", 
+            exercise.setup = "\"storeresults\""), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = structure(c("gradethis::grade_code(", 
+    "  correct = \"\", ", "  incorrect = \"Check out the hints to this exercise. And mind the blanks in the resulting sentence.\"", 
+    "  )"), chunk_opts = list(label = "paste0-check")), solution = structure(c("names(result_t$estimate)[2]", 
+    "round(result_t$estimate[[2]], digits = 1)"), chunk_opts = list(
+        label = "paste0-solution", exercise.reveal_solution = FALSE)), 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "modelling1_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "paste0", exercise = TRUE, exercise.setup = "storeresults", 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "paste0, exercise = TRUE, exercise.setup = \"storeresults\"", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-vartest1-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-vartest1-code-editor`)), session)
+output$`tutorial-exercise-vartest1-output` <- renderUI({
+  `tutorial-exercise-vartest1-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "vartest1", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "vartest1", code = "vartest <- ____", 
+        opts = list(label = "\"vartest1\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure(c("gradethis::grade_code(", "  correct = \"\", ", 
+    "  incorrect = \"\"", "  )"), chunk_opts = list(label = "vartest1-check")), 
+    solution = structure("vartest <- var.test(govact ~ sex, data = glbwarm)", chunk_opts = list(
+        label = "vartest1-solution")), tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "vartest1", exercise = TRUE, code = "vartest <- ____", 
+        out.width.px = 624, out.height.px = 384, params.src = "vartest1, exercise = TRUE", 
+        fig.num = 0, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-vartestp-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-vartestp-code-editor`)), session)
+output$`tutorial-exercise-vartestp-output` <- renderUI({
+  `tutorial-exercise-vartestp-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "vartestp", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = "vartest <- var.test(govact ~ sex, data = glbwarm)", 
+    chunks = list(list(label = "vartest1-solution", code = "vartest <- var.test(govact ~ sex, data = glbwarm)", 
+        opts = list(label = "\"vartest1-solution\""), engine = "r"), 
+        list(label = "vartestp", code = "", opts = list(label = "\"vartestp\"", 
+            exercise = "TRUE", exercise.setup = "\"vartest1-solution\""), 
+            engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure(c("gradethis::grade_code(", "  correct = \"`e-08`  (scientific notation) means `* 10^-8`, that is, divided by 10 to the power 8 (100,000,000). Note that the results are stored as class htest, just like the results from `t.test()`.\", ", 
+    "  incorrect = \"Perhaps you used double square brackets instead of the dollar sign to pull out the p value. That's OK.\"", 
+    "  )"), chunk_opts = list(label = "vartestp-check")), solution = structure("vartest$p.value", chunk_opts = list(
+        label = "vartestp-solution")), tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "vartestp", exercise = TRUE, exercise.setup = "vartest1-solution", 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "vartestp, exercise = TRUE, exercise.setup = \"vartest1-solution\"", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-ttest2-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-ttest2-code-editor`)), session)
+output$`tutorial-exercise-ttest2-output` <- renderUI({
+  `tutorial-exercise-ttest2-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "ttest2", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = "vartest <- var.test(govact ~ sex, data = glbwarm)", 
+    chunks = list(list(label = "vartest1-solution", code = "vartest <- var.test(govact ~ sex, data = glbwarm)", 
+        opts = list(label = "\"vartest1-solution\""), engine = "r"), 
+        list(label = "ttest2", code = "t.test(govact ~ sex, data = glbwarm, var.equal = _____ )", 
+            opts = list(label = "\"ttest2\"", exercise = "TRUE", 
+                exercise.setup = "\"vartest1-solution\""), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = structure(c("gradethis::grade_code(", 
+    "  correct = \"\", ", "  incorrect = \"\"", "  )"), chunk_opts = list(
+        label = "ttest2-check")), solution = structure("t.test(govact ~ sex, data = glbwarm, var.equal = var.test(govact ~ sex, data = glbwarm)$p.value > 0.05)", chunk_opts = list(
+        label = "ttest2-solution", exercise.reveal_solution = FALSE)), 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "modelling1_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "ttest2", exercise = TRUE, exercise.setup = "vartest1-solution", 
+        code = "t.test(govact ~ sex, data = glbwarm, var.equal = _____ )", 
+        out.width.px = 624, out.height.px = 384, params.src = "ttest2, exercise = TRUE, exercise.setup = \"vartest1-solution\"", 
+        fig.num = 0, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-lm1-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-lm1-code-editor`)), session)
+output$`tutorial-exercise-lm1-output` <- renderUI({
+  `tutorial-exercise-lm1-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "lm1", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "lm1", code = "", opts = list(
+        label = "\"lm1\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = structure(c("gradethis::grade_code(", 
+    "  correct = \"\", ", "  incorrect = \"Perhaps, you used the independent variables in a different order within the formula. That is fine.\"", 
+    "  )"), chunk_opts = list(label = "lm1-check")), solution = structure("model_1 <- lm(govact ~ age + negemot + partyid, data = glbwarm)", chunk_opts = list(
+        label = "lm1-solution")), tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "lm1", exercise = TRUE, code = "", out.width.px = 624, 
+        out.height.px = 384, params.src = "lm1, exercise = TRUE", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-lm2-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-lm2-code-editor`)), session)
+output$`tutorial-exercise-lm2-output` <- renderUI({
+  `tutorial-exercise-lm2-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "lm2", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = "model_1 <- lm(govact ~ age + negemot + partyid, data = glbwarm)", 
+    chunks = list(list(label = "lm1-solution", code = "model_1 <- lm(govact ~ age + negemot + partyid, data = glbwarm)", 
+        opts = list(label = "\"lm1-solution\""), engine = "r"), 
+        list(label = "lm2", code = "", opts = list(label = "\"lm2\"", 
+            exercise = "TRUE", exercise.setup = "\"lm1-solution\""), 
+            engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "lm2", exercise = TRUE, exercise.setup = "lm1-solution", 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "lm2, exercise = TRUE, exercise.setup = \"lm1-solution\"", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-lm3-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-lm3-code-editor`)), session)
+output$`tutorial-exercise-lm3-output` <- renderUI({
+  `tutorial-exercise-lm3-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "lm3", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "lm3", code = "", opts = list(
+        label = "\"lm3\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = structure(c("gradethis::grade_code(", 
+    "  correct = \"\", ", "  incorrect = \"Perhaps, you used the independent variables in a different order within the formula. That is fine.\"", 
+    "  )"), chunk_opts = list(label = "lm3-check")), solution = structure(c("model_1a <- lm(govact ~ age*negemot + partyid, data = glbwarm)", 
+    "print(model_1a)"), chunk_opts = list(label = "lm3-solution")), 
+    tests = NULL, options = list(eval = FALSE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "modelling1_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "lm3", exercise = TRUE, code = "", out.width.px = 624, 
+        out.height.px = 384, params.src = "lm3, exercise = TRUE", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-lm4-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-lm4-code-editor`)), session)
+output$`tutorial-exercise-lm4-output` <- renderUI({
+  `tutorial-exercise-lm4-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "lm4", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "lm4", code = "", opts = list(
+        label = "\"lm4\"", exercise = "TRUE"), engine = "r")), 
+    code_check = NULL, error_check = NULL, check = structure(c("gradethis::grade_code(", 
+    "  correct = \"\", ", "  incorrect = \"\"", "  )"), chunk_opts = list(
+        label = "lm4-check")), solution = structure("lm(govact ~ age + negemot*partyid, data = glbwarm)", chunk_opts = list(
+        label = "lm4-solution")), tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "lm4", exercise = TRUE, code = "", out.width.px = 624, 
+        out.height.px = 384, params.src = "lm4, exercise = TRUE", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-anova1-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-anova1-code-editor`)), session)
+output$`tutorial-exercise-anova1-output` <- renderUI({
+  `tutorial-exercise-anova1-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "anova1", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "anova1", code = "model_2 <- lm(govact ~ sex * partyid, data = glbwarm, contrasts= ____ )", 
+        opts = list(label = "\"anova1\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure(c("gradethis::grade_code(", "  correct = \"Have a look at the results: send model_2 to the screen.\", ", 
+    "  incorrect = \"\"", "  )"), chunk_opts = list(label = "anova1-check")), 
+    solution = structure("model_2 <- lm(govact ~ sex * partyid, data = glbwarm, contrasts=list(sex=contr.sum, partyid=contr.sum))", chunk_opts = list(
+        label = "anova1-solution")), tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "anova1", exercise = TRUE, code = "model_2 <- lm(govact ~ sex * partyid, data = glbwarm, contrasts= ____ )", 
+        out.width.px = 624, out.height.px = 384, params.src = "anova1, exercise = TRUE", 
+        fig.num = 0, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-anova2-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-anova2-code-editor`)), session)
+output$`tutorial-exercise-anova2-output` <- renderUI({
+  `tutorial-exercise-anova2-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "anova2", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = "model_2 <- lm(govact ~ sex * partyid, data = glbwarm, contrasts=list(sex=contr.sum, partyid=contr.sum))", 
+    chunks = list(list(label = "anova1-solution", code = "model_2 <- lm(govact ~ sex * partyid, data = glbwarm, contrasts=list(sex=contr.sum, partyid=contr.sum))", 
+        opts = list(label = "\"anova1-solution\""), engine = "r"), 
+        list(label = "anova2", code = "", opts = list(label = "\"anova2\"", 
+            exercise = "TRUE", exercise.setup = "\"anova1-solution\""), 
+            engine = "r")), code_check = NULL, error_check = NULL, 
+    check = structure(c("gradethis::grade_code(", "  correct = \"\", ", 
+    "  incorrect = \"Perhaps you used the package name in the command, which is fine.\"", 
+    "  )"), chunk_opts = list(label = "anova2-check")), solution = structure("Anova(model_2)", chunk_opts = list(
+        label = "anova2-solution")), tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "anova2", exercise = TRUE, exercise.setup = "anova1-solution", 
+        code = "", out.width.px = 624, out.height.px = 384, params.src = "anova2, exercise = TRUE, exercise.setup = \"anova1-solution\"", 
+        fig.num = 0L, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-NAoption-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-NAoption-code-editor`)), session)
+output$`tutorial-exercise-NAoption-output` <- renderUI({
+  `tutorial-exercise-NAoption-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "NAoption", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "NAoption", code = "# Get the current option for na.action.\ngetOption(\"na.action\")\n# Set the option (if necessary).\noptions(na.action = \"na.omit\")", 
+        opts = list(label = "\"NAoption\"", exercise = "TRUE"), 
+        engine = "r")), code_check = NULL, error_check = NULL, 
+    check = NULL, solution = NULL, tests = NULL, options = list(
+        eval = FALSE, echo = TRUE, results = "markup", tidy = FALSE, 
+        tidy.opts = NULL, collapse = FALSE, prompt = FALSE, comment = NA, 
+        highlight = FALSE, size = "normalsize", background = "#F7F7F7", 
+        strip.white = TRUE, cache = 0, cache.path = "modelling1_cache/html/", 
+        cache.vars = NULL, cache.lazy = TRUE, dependson = NULL, 
+        autodep = FALSE, cache.rebuild = FALSE, fig.keep = "high", 
+        fig.show = "asis", fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "NAoption", exercise = TRUE, code = c("# Get the current option for na.action.", 
+        "getOption(\"na.action\")", "# Set the option (if necessary).", 
+        "options(na.action = \"na.omit\")"), out.width.px = 624, 
+        out.height.px = 384, params.src = "NAoption, exercise = TRUE", 
+        fig.num = 0, exercise.df_print = "paged"), engine = "r", 
+    version = "4"), class = c("r", "tutorial_exercise")))
+</script>
+
+
+<script type="application/shiny-prerendered" data-context="server">
+`tutorial-exercise-posterior1-result` <- learnr:::setup_exercise_handler(reactive(req(input$`tutorial-exercise-posterior1-code-editor`)), session)
+output$`tutorial-exercise-posterior1-output` <- renderUI({
+  `tutorial-exercise-posterior1-result`()
+})
+</script>
+ 
+<script type="application/shiny-prerendered" data-context="server">
+learnr:::store_exercise_cache(structure(list(label = "posterior1", global_setup = structure(c("# Ensure that libraries are loaded.", 
+"library(tidyverse)", "library(learnr)", "library(gradethis)", 
+"library(knitr)", "library(kableExtra)", "library(haven) #For importing SPSS data files.", 
+"library(car) #For ANOVA.  ", "library(texreg) #For pretty regression results.", 
+"library(effects) #For two-way interaction plots.", "library(broom) #For cleaning up statistical results.", 
+"", "tutorial_options(exercise.timelimit = 20, exercise.checker = gradethis::grade_learnr)", 
+"knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)"
+), chunk_opts = list(label = "setup", include = FALSE)), setup = NULL, 
+    chunks = list(list(label = "posterior1", code = "# Extract the posteriors from the fitted model to a tibble.\nposteriors <- as_tibble(model_1aBayes)\n# Overview of variables in posteriors: each independent variable and the error term (sigma).\nstr(posteriors)\n# Calculate the probability that the effect of negemot is larger than 0 in the population.\nprob <- posteriors |>\n  summarize(b_negemot = mean(negemot > 0))\n# Plot the probability distribution and display this information.\nposteriors |> \n  mutate(positive = negemot > 0) |>\n  ggplot(mapping = aes(x = negemot)) +\n    geom_histogram(\n      aes(fill = positive),\n      boundary = 0,\n      bins = 30,\n      show.legend = FALSE\n      ) +\n    geom_text(aes(label = prob$b_negemot, x = 0.15, y = 100))", 
+        opts = list(label = "\"posterior1\"", exercise = "TRUE", 
+            exercise.eval = "TRUE"), engine = "r")), code_check = NULL, 
+    error_check = NULL, check = NULL, solution = NULL, tests = NULL, 
+    options = list(eval = TRUE, echo = TRUE, results = "markup", 
+        tidy = FALSE, tidy.opts = NULL, collapse = FALSE, prompt = FALSE, 
+        comment = NA, highlight = FALSE, size = "normalsize", 
+        background = "#F7F7F7", strip.white = TRUE, cache = 0, 
+        cache.path = "modelling1_cache/html/", cache.vars = NULL, 
+        cache.lazy = TRUE, dependson = NULL, autodep = FALSE, 
+        cache.rebuild = FALSE, fig.keep = "high", fig.show = "asis", 
+        fig.align = "default", fig.path = "modelling1_files/figure-html/", 
+        dev = "png", dev.args = NULL, dpi = 192, fig.ext = "png", 
+        fig.width = 6.5, fig.height = 4, fig.env = "figure", 
+        fig.cap = NULL, fig.scap = NULL, fig.lp = "fig:", fig.subcap = NULL, 
+        fig.pos = "", out.width = 624, out.height = NULL, out.extra = NULL, 
+        fig.retina = 2, external = TRUE, sanitize = FALSE, interval = 1, 
+        aniopts = "controls,loop", warning = FALSE, error = FALSE, 
+        message = FALSE, render = NULL, ref.label = NULL, child = NULL, 
+        engine = "r", split = FALSE, include = TRUE, purl = TRUE, 
+        max.print = 1000, exercise.timelimit = 20, exercise.checker = "function (...) \n{\n    lifecycle::deprecate_soft(\"0.2.2\", \"grade_learnr()\", \"gradethis_exercise_checker()\")\n    gradethis_exercise_checker(...)\n}", 
+        exercise.error.check.code = "gradethis_error_checker()", 
+        label = "posterior1", exercise = TRUE, exercise.eval = TRUE, 
+        code = c("# Extract the posteriors from the fitted model to a tibble.", 
+        "posteriors <- as_tibble(model_1aBayes)", "# Overview of variables in posteriors: each independent variable and the error term (sigma).", 
+        "str(posteriors)", "# Calculate the probability that the effect of negemot is larger than 0 in the population.", 
+        "prob <- posteriors |>", "  summarize(b_negemot = mean(negemot > 0))", 
+        "# Plot the probability distribution and display this information.", 
+        "posteriors |> ", "  mutate(positive = negemot > 0) |>", 
+        "  ggplot(mapping = aes(x = negemot)) +", "    geom_histogram(", 
+        "      aes(fill = positive),", "      boundary = 0,", 
+        "      bins = 30,", "      show.legend = FALSE", "      ) +", 
+        "    geom_text(aes(label = prob$b_negemot, x = 0.15, y = 100))"
+        ), out.width.px = 624, out.height.px = 384, params.src = "posterior1, exercise = TRUE, exercise.eval = TRUE", 
+        fig.alt = NULL, fig.num = 1, exercise.df_print = "paged"), 
+    engine = "r", version = "4"), class = c("r", "tutorial_exercise"
+)))
+</script>
+</li>
+</ul></li>
+</ul>
+<!--html_preserve-->
+<script type="application/shiny-prerendered" data-context="dependencies">
+{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["header-attrs"]},{"type":"character","attributes":{},"value":["2.29"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/pandoc"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["header-attrs.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["3.6.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/3.6.0"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery-3.6.0.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquerylib"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.1.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["bootstrap"]},{"type":"character","attributes":{},"value":["3.3.5"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/bootstrap"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["viewport"]}},"value":[{"type":"character","attributes":{},"value":["width=device-width, initial-scale=1"]}]},{"type":"character","attributes":{},"value":["js/bootstrap.min.js","shim/html5shiv.min.js","shim/respond.min.js"]},{"type":"character","attributes":{},"value":["css/cerulean.min.css"]},{"type":"character","attributes":{},"value":["<style>h1 {font-size: 34px;}\n       h1.title {font-size: 38px;}\n       h2 {font-size: 30px;}\n       h3 {font-size: 24px;}\n       h4 {font-size: 18px;}\n       h5 {font-size: 16px;}\n       h6 {font-size: 12px;}\n       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}\n       pre:not([class]) { background-color: white }<\/style>"]},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["pagedtable"]},{"type":"character","attributes":{},"value":["1.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/pagedtable-1.1"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["js/pagedtable.js"]},{"type":"character","attributes":{},"value":["css/pagedtable.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["highlightjs"]},{"type":"character","attributes":{},"value":["9.12.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/highlightjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["highlight.js"]},{"type":"character","attributes":{},"value":["textmate.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial"]},{"type":"character","attributes":{},"value":["0.11.5"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial.js"]},{"type":"character","attributes":{},"value":["tutorial.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["i18n"]},{"type":"character","attributes":{},"value":["21.6.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/i18n"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["i18next.min.js","tutorial-i18n-init.js"]},{"type":"NULL"},{"type":"character","attributes":{},"value":["<script id=\"i18n-cstm-trns\" type=\"application/json\">{\"language\":\"en\",\"resources\":{\"en\":{\"translation\":{\"button\":{\"runcode\":\"Run Code\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Hint\",\"hint_plural\":\"Hints\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Next Hint\",\"hintprev\":\"Previous Hint\",\"solution\":\"Solution\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copy to Clipboard\",\"startover\":\"Start Over\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continue\",\"submitanswer\":\"Submit Answer\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Previous Topic\",\"nexttopic\":\"Next Topic\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Try Again\"},\"text\":{\"startover\":\"Start Over\",\"areyousure\":\"Are you sure you want to start over? (all exercise progress will be reset)\",\"youmustcomplete\":\"You must complete the\",\"exercise\":\"exercise\",\"exercise_plural\":\"exercises\",\"inthissection\":\"in this section before continuing.\",\"code\":\"Code\",\"enginecap\":\"{{engine}} $t(text.code)\",\"quiz\":\"Quiz\",\"blank\":\"blank\",\"blank_plural\":\"blanks\",\"exercisecontainsblank\":\"This exercise contains {{count}} $t(text.blank).\",\"pleasereplaceblank\":\"Please replace {{blank}} with valid code.\",\"unparsable\":\"It looks like this might not be valid R code. R cannot determine how to turn your text into a complete command. You may have forgotten to fill in a blank, to remove an underscore, to include a comma between arguments, or to close an opening <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> or <code>{<\\/code> with a matching <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code> or <code>}<\\/code>.\\n\",\"unparsablequotes\":\"<p>It looks like your R code contains specially formatted quotation marks or &quot;curly&quot; quotes (<code>{{character}}<\\/code>) around character strings, making your code invalid. R requires character values to be contained in straight quotation marks (<code>&quot;<\\/code> or <code>'<\\/code>).<\\/p> {{code}} <p>Don't worry, this is a common source of errors when you copy code from another app that applies its own formatting to text. You can try replacing the code on that line with the following. There may be other places that need to be fixed, too.<\\/p> {{suggestion}}\\n\",\"unparsableunicode\":\"<p>It looks like your R code contains an unexpected special character (<code>{{character}}<\\/code>) that makes your code invalid.<\\/p> {{code}} <p>Sometimes your code may contain a special character that looks like a regular character, especially if you copy and paste the code from another app. Try deleting the special character from your code and retyping it manually.<\\/p>\\n\",\"unparsableunicodesuggestion\":\"<p>It looks like your R code contains an unexpected special character (<code>{{character}}<\\/code>) that makes your code invalid.<\\/p> {{code}} <p>Sometimes your code may contain a special character that looks like a regular character, especially if you copy and paste the code from another app. You can try replacing the code on that line with the following. There may be other places that need to be fixed, too.<\\/p> {{suggestion}}\\n\",\"and\":\"and\",\"or\":\"or\",\"listcomma\":\", \",\"oxfordcomma\":\",\"}}},\"fr\":{\"translation\":{\"button\":{\"runcode\":\"Lancer le Code\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Indication\",\"hint_plural\":\"Indications\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Indication Suivante\",\"hintprev\":\"Indication Précédente\",\"solution\":\"Solution\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copier dans le Presse-papier\",\"startover\":\"Recommencer\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continuer\",\"submitanswer\":\"Soumettre\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Chapitre Précédent\",\"nexttopic\":\"Chapitre Suivant\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Réessayer\"},\"text\":{\"startover\":\"Recommencer\",\"areyousure\":\"Êtes-vous certains de vouloir recommencer? (La progression sera remise à zéro)\",\"youmustcomplete\":\"Vous devez d'abord compléter\",\"exercise\":\"l'exercice\",\"exercise_plural\":\"des exercices\",\"inthissection\":\"de cette section avec de continuer.\",\"code\":\"Code\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"and\":\"et\",\"or\":\"ou\",\"oxfordcomma\":\"\"}}},\"es\":{\"translation\":{\"button\":{\"runcode\":\"Ejecutar código\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Pista\",\"hint_plural\":\"Pistas\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Siguiente pista\",\"hintprev\":\"Pista anterior\",\"solution\":\"Solución\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copiar al portapapeles\",\"startover\":\"Reiniciar\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continuar\",\"submitanswer\":\"Enviar respuesta\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Tema anterior\",\"nexttopic\":\"Tema siguiente\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Volver a intentar\"},\"text\":{\"startover\":\"Reiniciar\",\"areyousure\":\"¿De verdad quieres empezar de nuevo? (todo el progreso del ejercicio se perderá)\",\"youmustcomplete\":\"Debes completar\",\"exercise\":\"el ejercicio\",\"exercise_plural\":\"los ejercicios\",\"inthissection\":\"en esta sección antes de continuar.\",\"code\":\"Código\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Cuestionario\",\"and\":\"y\",\"or\":\"o\",\"oxfordcomma\":\"\"}}},\"pt\":{\"translation\":{\"button\":{\"runcode\":\"Executar código\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Dica\",\"hint_plural\":\"Dicas\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Próxima dica\",\"hintprev\":\"Dica anterior\",\"solution\":\"Solução\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Copiar para a área de transferência\",\"startover\":\"Reiniciar\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Continuar\",\"submitanswer\":\"Enviar resposta\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Tópico anterior\",\"nexttopic\":\"Próximo tópico\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Tentar novamente\"},\"text\":{\"startover\":\"Reiniciar\",\"areyousure\":\"Tem certeza que deseja começar novamente? (todo o progresso feito será perdido)\",\"youmustcomplete\":\"Você deve completar\",\"exercise\":\"o exercício\",\"exercise_plural\":\"os exercícios\",\"inthissection\":\"nesta seção antes de continuar.\",\"code\":\"Código\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"and\":\"e\",\"or\":\"ou\",\"oxfordcomma\":\"\"}}},\"tr\":{\"translation\":{\"button\":{\"runcode\":\"Çalıştırma Kodu\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Ipucu\",\"hint_plural\":\"İpuçları\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Sonraki İpucu\",\"hintprev\":\"Önceki İpucu\",\"solution\":\"Çözüm\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Pano'ya Kopyala\",\"startover\":\"Baştan Başlamak\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Devam et\",\"submitanswer\":\"Cevabı onayla\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Önceki Konu\",\"nexttopic\":\"Sonraki Konu\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Tekrar Deneyin\"},\"text\":{\"startover\":\"Baştan Başlamak\",\"areyousure\":\"Baştan başlamak istediğinizden emin misiniz? (tüm egzersiz ilerlemesi kaybolacak)\",\"youmustcomplete\":\"Tamamlamalısın\",\"exercise\":\"egzersiz\",\"exercise_plural\":\"egzersizler\",\"inthissection\":\"devam etmeden önce bu bölümde\",\"code\":\"Kod\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Sınav\",\"oxfordcomma\":\"\"}}},\"emo\":{\"translation\":{\"button\":{\"runcode\":\"🏃\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"💡\",\"hint_plural\":\"$t(button.hint)\",\"hinttitle\":\"$t(button.hint)\",\"solution\":\"🎯\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"📋\",\"startover\":\"⏮\",\"startovertitle\":\"Start Over\",\"continue\":\"✅\",\"submitanswer\":\"🆗\",\"submitanswertitle\":\"Submit Answer\",\"previoustopic\":\"⬅\",\"nexttopic\":\"➡\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"🔁\"},\"text\":{\"startover\":\"⏮\",\"areyousure\":\"🤔\",\"youmustcomplete\":\"⚠️ 👉 🧑‍💻\",\"exercise\":\"\",\"exercise_plural\":\"\",\"inthissection\":\"\",\"code\":\"💻\",\"enginecap\":\"$t(text.code) {{engine}}\",\"oxfordcomma\":\"\"}}},\"eu\":{\"translation\":{\"button\":{\"runcode\":\"Kodea egikaritu\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Laguntza\",\"hint_plural\":\"Laguntza\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Aurreko laguntza\",\"hintprev\":\"Hurrengo laguntza\",\"solution\":\"Ebazpena\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Arbelean kopiatu\",\"startover\":\"Berrabiarazi\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Jarraitu\",\"submitanswer\":\"Erantzuna bidali\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Aurreko atala\",\"nexttopic\":\"Hurrengo atala\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Berriro saiatu\"},\"text\":{\"startover\":\"Berrabiarazi\",\"areyousure\":\"Berriro hasi nahi duzu? (egindako lana galdu egingo da)\",\"youmustcomplete\":\"Aurrera egin baino lehen atal honetako\",\"exercise\":\"ariketa egin behar duzu.\",\"exercise_plural\":\"ariketak egin behar dituzu.\",\"inthissection\":\"\",\"code\":\"Kodea\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Galdetegia\",\"oxfordcomma\":\"\"}}},\"de\":{\"translation\":{\"button\":{\"runcode\":\"Code ausführen\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Tipp\",\"hint_plural\":\"Tipps\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Nächster Tipp\",\"hintprev\":\"Vorheriger Tipp\",\"solution\":\"Lösung\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"In die Zwischenablage kopieren\",\"startover\":\"Neustart\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Weiter\",\"submitanswer\":\"Antwort einreichen\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Vorheriges Kapitel\",\"nexttopic\":\"Nächstes Kapitel\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Nochmal versuchen\"},\"text\":{\"startover\":\"Neustart\",\"areyousure\":\"Bist du sicher, dass du neustarten willst? (der gesamte Lernfortschritt wird gelöscht)\",\"youmustcomplete\":\"Vervollstädinge\",\"exercise\":\"die Übung\",\"exercise_plural\":\"die Übungen\",\"inthissection\":\"in diesem Kapitel, bevor du fortfährst.\",\"code\":\"Code\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"blank\":\"Lücke\",\"blank_plural\":\"Lücken\",\"pleasereplaceblank\":\"Bitte ersetze {{blank}} mit gültigem Code.\",\"unparsable\":\"Dies scheint kein gültiger R Code zu sein. R kann deinen Text nicht in einen gültigen Befehl übersetzen. Du hast vielleicht vergessen, die Lücke zu füllen, einen Unterstrich zu entfernen, ein Komma zwischen Argumente zu setzen oder ein eröffnendes <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> oder <code>{<\\/code> mit einem zugehörigen <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code> oder <code>}<\\/code> zu schließen.\\n\",\"and\":\"und\",\"or\":\"oder\",\"listcomma\":\", \",\"oxfordcomma\":\",\"}}},\"ko\":{\"translation\":{\"button\":{\"runcode\":\"코드 실행\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"힌트\",\"hint_plural\":\"힌트들\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"다음 힌트\",\"hintprev\":\"이전 힌트\",\"solution\":\"솔루션\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"클립보드에 복사\",\"startover\":\"재학습\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"다음 학습으로\",\"submitanswer\":\"정답 제출\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"이전 토픽\",\"nexttopic\":\"다음 토픽\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"재시도\"},\"text\":{\"startover\":\"재학습\",\"areyousure\":\"다시 시작 하시겠습니까? (모든 예제의 진행 정보가 재설정됩니다)\",\"youmustcomplete\":\"당신은 완료해야 합니다\",\"exercise\":\"연습문제\",\"exercise_plural\":\"연습문제들\",\"inthissection\":\"이 섹션을 실행하기 전에\",\"code\":\"코드\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"퀴즈\",\"blank\":\"공백\",\"blank_plural\":\"공백들\",\"exercisecontainsblank\":\"이 연습문제에는 {{count}}개의 $t(text.blank)이 포함되어 있습니다.\",\"pleasereplaceblank\":\"{{blank}}를 유효한 코드로 바꾸십시오.\",\"unparsable\":\"이것은 유효한 R 코드가 아닐 수 있습니다. R은 텍스트를 완전한 명령으로 변환하는 방법을 결정할 수 없습니다. 당신은 공백이나 밑줄을 대체하여 채우기, 인수를 컴마로 구분하기, 또는 <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> , <code>{<\\/code>로 시작하는 구문을 닫는 <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code>, <code>}<\\/code>을 잊었을 수도 있습니다.\\n\",\"and\":\"그리고\",\"or\":\"혹은\",\"listcomma\":\", \",\"oxfordcomma\":\"\"}}},\"zh\":{\"translation\":{\"button\":{\"runcode\":\"运行代码\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"提示\",\"hint_plural\":\"提示\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"下一个提示\",\"hintprev\":\"上一个提示\",\"solution\":\"答案\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"复制到剪切板\",\"startover\":\"重新开始\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"继续\",\"submitanswer\":\"提交答案\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"上一专题\",\"nexttopic\":\"下一专题\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"再试一次\"},\"text\":{\"startover\":\"重置\",\"areyousure\":\"你确定要重新开始吗? (所有当前进度将被重置)\",\"youmustcomplete\":\"你必须完成\",\"exercise\":\"练习\",\"exercise_plural\":\"练习\",\"inthissection\":\"在进行本节之前\",\"code\":\"代码\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"测试\",\"blank\":\"空\",\"blank_plural\":\"空\",\"exercisecontainsblank\":\"本练习包含{{count}}个$t(text.blank)\",\"pleasereplaceblank\":\"请在{{blank}}内填写恰当的代码\",\"unparsable\":\"这似乎不是有效的R代码。 R不知道如何将您的文本转换为完整的命令。 您是否忘了填空，忘了删除下划线，忘了在参数之间包含逗号，或者是忘了用<code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code>,<code>}<\\/code>来封闭<code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code>。 or <code>{<\\/code>。\\n\",\"unparsablequotes\":\"<p>您的R代码中似乎含有特殊格式的引号，或者弯引号(<code>{{character}}<\\/code>) 在字符串前后，在R中字符串应该被直引号(<code>&quot;<\\/code> 或者 <code>'<\\/code>)包裹。<\\/p> {{code}} <p>别担心，该错误经常在复制粘贴包含格式的代码时遇到， 您可以尝试将该行中的代码替换为以下代码，也许还有其他地方需要修改。<\\/p> {{suggestion}}\\n\",\"unparsableunicode\":\"<p>您的代码中似乎包含有异常字符(<code>{{character}}<\\/code>),导致代码无效。<\\/p> {{code}} <p>有时候你的代码可能含有看似正常字符的特殊字符，特别是当你复制粘贴其他来源代码的时候。 请试着删除这些特殊字符,重新输入<\\/p>\\n\",\"unparsableunicodesuggestion\":\"<p>您的代码中似乎包含有异常字符(<code>{{character}}<\\/code>),导致代码无效。<\\/p> {{code}} <p>有时候你的代码可能含有看似正常字符的特殊字符，特别是当你复制粘贴其他来源代码的时候。 请试着删除这些特殊字符,重新输入<\\/p>\\n\",\"and\":\"且\",\"or\":\"或\",\"listcomma\":\",\",\"oxfordcomma\":\",\"}}},\"pl\":{\"translation\":{\"button\":{\"runcode\":\"Uruchom kod\",\"runcodetitle\":\"$t(button.runcode) ({{kbd}})\",\"hint\":\"Podpowiedź\",\"hint_plural\":\"Podpowiedzi\",\"hinttitle\":\"$t(button.hint)\",\"hintnext\":\"Następna podpowiedź\",\"hintprev\":\"Poprzednia podpowiedź\",\"solution\":\"Rozwiązanie\",\"solutiontitle\":\"$t(button.solution)\",\"copyclipboard\":\"Kopiuj do schowka\",\"startover\":\"Zacznij od początku\",\"startovertitle\":\"$t(button.startover)\",\"continue\":\"Kontynuuj\",\"submitanswer\":\"Wyślij\",\"submitanswertitle\":\"$t(button.submitanswer)\",\"previoustopic\":\"Poprzednia sekcja\",\"nexttopic\":\"Następna sekcja\",\"questionsubmit\":\"$t(button.submitanswer)\",\"questiontryagain\":\"Spróbuj ponownie\"},\"text\":{\"startover\":\"Zacznij od początku\",\"areyousure\":\"Czy na pewno chcesz zacząć od początku? (cały postęp w zadaniu zostanie utracony)\",\"youmustcomplete\":\"Musisz ukończyć\",\"exercise\":\"ćwiczenie\",\"exercise_plural\":\"ćwiczenia\",\"inthissection\":\"w tej sekcji przed kontynuowaniem\",\"code\":\"Kod\",\"enginecap\":\"$t(text.code) {{engine}}\",\"quiz\":\"Quiz\",\"blank\":\"luka\",\"blank_plural\":\"luk(i)\",\"exercisecontainsblank\":\"To ćwiczenie zawiera {{count}} $t(text.blank).\",\"pleasereplaceblank\":\"Proszę uzupełnić {{blank}} prawidłowym kodem.\",\"unparsable\":\"Wygląda na to, że może to nie być prawidłowy kod R. R nie jest w stanie przetworzyć Twojego tekstu na polecenie. Mogłeś(-aś) zapomnieć wypełnić luki, usunąć podkreślnik, umieścić przecinka między argumentami, lub zamknąć znak <code>&quot;<\\/code>, <code>'<\\/code>, <code>(<\\/code> lub <code>{<\\/code> odpowiadającym <code>&quot;<\\/code>, <code>'<\\/code>, <code>)<\\/code> lub <code>}<\\/code>.\\n\",\"unparsablequotes\":\"<p>Wygląda na to, że Twój kod zawiera szczególnie sformatowane cudzysłowy lub cudzysłowy typograficzne (<code>{{character}}<\\/code>) przy ciągach znaków, co sprawia, że kod jest niepoprawny. R wymaga cudzysłowów prostych (<code>&quot;<\\/code> albo <code>'<\\/code>).<\\/p> {{code}} <p>Nie martw się, to powszechne źródło błędów, gdy kopiuje się kod z innego programu, który sam formatuje teskt. Możesz spróbować zastąpić swój kod następującym kodem. Mogą być też inne miejsca, które wymagają poprawienia.<\\/p> {{suggestion}}\\n\",\"unparsableunicode\":\"<p>Wygląda na to, że Twój kod zawiera niespodziewany znak specjalny (<code>{{character}}<\\/code>), co sprawia, że kod jest niepoprawny.<\\/p> {{code}} <p>Czasami Twój kod może zawierać znak specjalny, który wygląda jak zwykły znak, zwłaszcza jeśli kopiujesz kod z innego programu. Spróbuj usunąć znak specjalny i wpisać do ponownie ręcznie.<\\/p>\\n\",\"unparsableunicodesuggestion\":\"<p>Wygląda na to, że Twój kod zawiera niespodziewany znak specjalny (<code>{{character}}<\\/code>), co sprawia, że kod jest niepoprawny.<\\/p> {{code}} <p>Czasami Twój kod może zawierać znak specjalny, który wygląda jak zwykły znak, zwłaszcza jeśli kopiujesz kod z innego programu. Możesz spróbować zastąpić swój kod następującym kodem. Mogą być też inne miejsca, które wymagają poprawienia.<\\/p> {{suggestion}}\\n\",\"and\":\"i\",\"or\":\"lub\",\"listcomma\":\", \",\"oxfordcomma\":\"\"}}}}}<\/script>"]},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial-format"]},{"type":"character","attributes":{},"value":["0.11.5"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmarkdown/templates/tutorial/resources"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial-format.js"]},{"type":"character","attributes":{},"value":["tutorial-format.css","rstudio-theme.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["3.6.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/3.6.0"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery-3.6.0.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquerylib"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.1.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["navigation"]},{"type":"character","attributes":{},"value":["1.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/navigation-1.1"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tabsets.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["highlightjs"]},{"type":"character","attributes":{},"value":["9.12.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["rmd/h/highlightjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["highlight.js"]},{"type":"character","attributes":{},"value":["default.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["rmarkdown"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["2.29"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["jquery"]},{"type":"character","attributes":{},"value":["3.6.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/3.6.0"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquery-3.6.0.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["jquerylib"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.1.4"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["font-awesome"]},{"type":"character","attributes":{},"value":["6.5.2"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["fontawesome"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["css/all.min.css","css/v4-shims.min.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["fontawesome"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.5.3"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["bootbox"]},{"type":"character","attributes":{},"value":["5.5.2"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/bootbox"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["bootbox.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["idb-keyvalue"]},{"type":"character","attributes":{},"value":["3.2.0"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/idb-keyval"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["idb-keyval-iife-compat.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[false]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["tutorial"]},{"type":"character","attributes":{},"value":["0.11.5"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/tutorial"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["tutorial.js"]},{"type":"character","attributes":{},"value":["tutorial.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["ace"]},{"type":"character","attributes":{},"value":["1.10.1"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/ace"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["ace.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["clipboardjs"]},{"type":"character","attributes":{},"value":["2.0.10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["lib/clipboardjs"]}]},{"type":"NULL"},{"type":"character","attributes":{},"value":["clipboard.min.js"]},{"type":"NULL"},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["learnr"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.11.5"]}]}]}
+</script>
+<!--/html_preserve-->
+<!--html_preserve-->
+<script type="application/shiny-prerendered" data-context="execution_dependencies">
+{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["packages","version"]},"class":{"type":"character","attributes":{},"value":["data.frame"]},"row.names":{"type":"integer","attributes":{},"value":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139]}},"value":[{"type":"character","attributes":{},"value":["abind","backports","base","base64enc","bayesplot","boot","broom","bslib","cachem","car","carData","checkmate","cli","codetools","colorspace","colourpicker","compiler","crosstalk","datasets","DBI","digest","distributional","dplyr","DT","dygraphs","effects","evaluate","farver","fastmap","fontawesome","forcats","Formula","generics","ggplot2","glue","gradethis","graphics","grDevices","grid","gridExtra","gtable","gtools","haven","hms","htmltools","htmlwidgets","httpuv","httr","igraph","inline","insight","jquerylib","jsonlite","kableExtra","knitr","labeling","later","lattice","learnr","lifecycle","lme4","loo","lubridate","magrittr","markdown","MASS","Matrix","matrixStats","methods","mime","miniUI","minqa","mitools","munsell","nlme","nloptr","nnet","parallel","pillar","pkgbuild","pkgconfig","plyr","posterior","promises","purrr","QuickJSR","R6","rbibutils","Rcpp","RcppParallel","Rdpack","readr","reformulas","reshape2","rlang","rmarkdown","rprojroot","rstan","rstanarm","rstantools","rstudioapi","sass","scales","shiny","shinyjs","shinystan","shinythemes","splines","StanHeaders","stats","stats4","stringi","stringr","survey","survival","svglite","systemfonts","tensorA","texreg","textshaping","threejs","tibble","tidyr","tidyselect","tidyverse","timechange","tools","tzdb","UsingRTutorials","utils","vctrs","viridisLite","withr","xfun","xml2","xtable","xts","yaml","zoo"]},{"type":"character","attributes":{},"value":["1.4-8","1.5.0","4.4.3","0.1-3","1.13.0","1.3-31","1.0.8","0.9.0","1.1.0","3.1-3","3.0-5","2.3.2","3.6.4","0.2-20","2.1-1","1.3.0","4.4.3","1.2.1","4.4.3","1.2.3","0.6.37","0.5.0","1.1.4","0.33","1.1.1.6","4.2-2","1.0.3","2.1.2","1.2.0","0.5.3","1.0.0","1.2-5","0.1.3","3.5.2","1.8.0","0.2.14","4.4.3","4.4.3","4.4.3","2.3","0.3.6","3.9.5","2.5.4","1.1.3","0.5.8.1","1.6.4","1.6.16","1.4.7","2.1.4","0.3.21","1.3.1","0.1.4","2.0.0","1.4.0","1.50","0.4.3","1.4.2","0.22-6","0.11.5","1.0.4","1.1-37","2.8.0","1.9.4","2.0.3","2.0","7.3-64","1.7-2","1.5.0","4.4.3","0.13","0.1.2","1.2.8","2.4","0.5.1","3.1-167","2.2.1","7.3-20","4.4.3","1.10.1","1.4.8","2.0.3","1.8.9","1.6.1","1.3.2","1.0.4","1.8.0","2.6.1","2.3","1.0.14","5.1.10","2.6.3","2.1.5","0.4.0","1.4.4","1.1.5","2.29","2.1.1","2.32.7","2.32.1","2.4.0","0.17.1","0.4.10","1.3.0","1.11.1","2.1.0","2.6.0","1.2.0","4.4.3","2.32.10","4.4.3","4.4.3","1.8.7","1.5.1","4.4-2","3.8-3","2.2.1","1.2.3","0.36.2.1","1.39.4","1.0.0","0.3.4","3.2.1","1.3.1","1.2.1","2.0.0","0.3.0","4.4.3","0.5.0","0.3.1","4.4.3","0.6.5","0.4.2","3.0.2","0.52","1.3.8","1.8-4","0.14.1","2.3.10","1.8-14"]}]}]}
+</script>
+<!--/html_preserve-->
+</div>
+
+</article> <!-- topics -->
+
+<div class="topicsContainer">
+<div class="topicsPositioner">
+<div class="band">
+<div class="bandContent topicsListContainer">
+
+<!-- begin doc-metadata -->
+<div id="doc-metadata">
+<h1 class="title toc-ignore" style="display:none;">Session 9: Modelling
+1</h1>
+</div>
+<!-- end doc-metadata -->
+
+</div> <!-- bandContent.topicsListContainer -->
+</div> <!-- band -->
+</div> <!-- topicsPositioner -->
+</div> <!-- topicsContainer -->
+
+
+</main> <!-- bandContent page -->
+</div> <!-- pageContent band -->
+
+
+
+<!-- Build Tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("section-TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<script>
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+</script>
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+
+</body>
+
+</html>

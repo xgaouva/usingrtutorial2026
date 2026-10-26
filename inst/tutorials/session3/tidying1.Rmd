@@ -1,0 +1,751 @@
+---
+title: "Session 3: Data Tidying (1)"
+output: 
+  learnr::tutorial:
+    progressive: true
+    allow_skip: true
+runtime: shiny_prerendered
+description: >
+    Check your understanding of the tidyverse functions for managing complex datasets, focusing on tidy data principles 1 and 2, 
+    learn how to wrangle in steps and check each step,
+    and continue working on your Data Project.
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+# Ensure that libraries are loaded.
+library(tidyverse)
+library(learnr)
+library(gradethis)
+library(knitr)
+library(kableExtra)
+
+tutorial_options(exercise.timelimit = 60, exercise.checker = gradethis::grade_learnr)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{r, context="data", include=FALSE}
+# Ensure that the data is loaded for the remainder of this tutorial.
+GlasgowFriends <- UsingRTutorials::GlasgowFriends # readr::read_csv("data/GlasgowFriends.csv")
+# Create the Student table.
+# It is not used in grade_result(), so it may already be around.
+Student <- GlasgowFriends |> select(student, neighbourhood, schooldist, hoodname, age, sex, smoking_at_home, smoking_parents, smoking_siblings) |> distinct()
+```
+
+<!-- Define programming tip style -->
+
+```{=html}
+<style>
+.tip {
+  background-color: #f5f5f5;
+}
+</style>
+```
+
+<!-- Define question style -->
+
+```{=html}
+<style>
+.question {
+  color: #5A9DDB;
+}
+</style>
+```
+
+<!-- Define emphasis style -->
+
+```{=html}
+<style>
+.emphasis {
+  color: #e8301b;
+}
+</style>
+```
+
+## Overview
+
+-   Q&A
+-   Four principles of tidy data
+-   Principle 1: Each type of case must have its own tibble
+-   Principle 2: Each observation must have it's own row
+
+## Q&A
+
+-   ADD DEPENDING ON WHAT'S ON THE CANVAS DISCUSSION BOARD BY 4 PM THE
+    PREVIOUS DAY
+
+## Tidy Data: Eve`R`ything In One Place
+
+-   Rules for optimal data structure designed for efficient and
+    consistent data storage.
+-   Key goals are to facilitate easy storage and (re-)use of complex
+    datasets by
+-   Storing data in a way that conserves space,
+-   Storing data in a way that is easily understandable by others,
+-   Preparing the dataset for common operations (e.g. merging different
+    types of data) given the characteristics of the R programming
+    language.
+
+## Four Principles of Tidy Data
+
+1.  Each type of case must have its own tibble (table).
+    -   Is the same information repeated in different rows?\
+    -   Split the tibble; transfer the info on each type of case to a
+        separate tibble.\
+    -   The book *R for Data Science (2nd Edition)* does not discuss
+        this much. See Chapter 19 on Joins.
+2.  Each observation must have its own row.
+    -   Do different variables address the same information?\
+    -   Stack repeated information.\
+    -   Don't allow values as columns.
+3.  Each variable must have its own column.
+    -   Is there a variable with values that should be variables by
+        themselves?
+    -   Don't stack different types of information in the same column.
+    -   Spread information over different columns.
+4.  Each value must have its own cell.
+    -   Does a variable contain more than one piece of information?
+    -   Don't cram more than one piece of information in a cell.\
+    -   Split the variable.
+
+Today, we will focus on principle 1 and 2. In the next session, we'll
+focus on principles 3 and 4.
+
+## 1. Each type of case must have its own tibble
+
+In this tutorial, we tidy up the very untidy tibble `GlasgowFriends`.
+
+Data arising from practical sources usually contain information about
+different types of cases, for example:
+
+-   a person;
+-   an organization;
+-   a moment in time;
+-   or a combination of these.
+
+For understanding and tidying your data, it is paramount to identify the
+types of cases in your data.
+
+::: emphasis
+What are you counting or plotting later on: persons, neighbourhoods,
+persons-per-wave, ...?
+:::
+
+::: question
+Inspect the `GlasgowFriends` tibble or use help on it to identify
+different types of cases in this data set. For each variable, ask
+yourself the question: What thing has this characteristic?
+:::
+
+```{r GlasgowFriends, exercise = TRUE}
+str(GlasgowFriends)
+?GlasgowFriends
+```
+
+### 
+
+### Primary key
+
+Potential types of cases in `GlasgowFriends`:
+
+-   **student**: has an age, sex, can be a friend, and so on.
+-   **neighbourhood**: has a name, a distance from school.
+-   **wave**: characteristic of neither a student nor a neighbourhood.
+
+::: emphasis
+Primary key = smallest set of variables for which every case (row) has a
+unique combination of values.
+:::
+
+```{r}
+#Example of observation missing for one student.
+data.frame(
+  student = c("s001", "s002", "s003", "s004"),
+  age = c(13.3, 14.2, 13.5, 13.7),
+  friendships = c(4, 2, 3, 6)
+  ) |>
+  knitr::kable(booktab = TRUE) |> 
+  kableExtra::kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+The above data frame with students as cases:
+
+-   has 1 row for each student;
+-   variable `student` uniquely identifies a student;
+-   `student` is the *primary key*.
+
+### 
+
+```{r}
+#Example of observation missing for one student.
+data.frame(
+  student = c("s001", "s002", "s002", "s003"),
+  age = c(13.3, 13.5, 14.2, 13.7),
+  friendships = c(4, 2, 3, 6)
+  ) |>
+  knitr::kable(booktab = TRUE) |> 
+  kableExtra::kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+::: question
+What is the primary key in the above tibble? Are students the (only)
+type of cases in this tibble?
+:::
+
+### The primary key can help to indicate the types of cases
+
+Find the primary key of a data frame to understand the type(s) of cases.
+
+Identifying the primary key of a data frame:
+
+1.  From the data description, chose variables that you think identify
+    types of cases.
+2.  Count each unique combination of values on these variables with
+    `count()`.
+3.  Check if there are combinations of values that appear more then once
+    with `filter(n > 1)`.
+    -   If at least one combination of values appears more than once,
+        this set of variables is not a primary key; add a variable to
+        the key (go to Step 1).
+    -   If no combination of values appears more than once, you may have
+        more variables than the primary key. See if you can remove a
+        variable and still have a unique key (go to Step 2).
+
+::: question
+Write code that identifies the primary key of tibble `GlasgowFriends`.
+You may have to try out different combinations of variables; submit only
+the final code for checking.
+:::
+
+```{r primarykeyhidden, eval=FALSE}
+# primary key: this seems to be the only option with four variables
+GlasgowFriends |> 
+  count( student, wave, bestfriend, bfperiod ) |> 
+  filter(n > 1)
+```
+
+```{r primarykey, exercise = TRUE}
+# Add the variables in the count() function that you think 
+# represent different types of cases (unit).
+GlasgowFriends |> 
+  count( ____ ) |> 
+  filter(n > 1)
+```
+
+::: {#primarykey-hint}
+**Hint:** Add the variables in the count() function that you think
+represent different types of cases (unit).
+:::
+
+```{r primarykey-solution}
+GlasgowFriends |> count( student, wave, bestfriend, bfperiod ) |> filter(n > 1)
+```
+
+```{r primarykey-check}
+gradethis::grade_code(
+  correct = "", 
+  incorrect = " Well, maybe you just entered the variables in another order than I expected. If the result is 0 and you use just four variables, your have the correct primary key."
+  )
+```
+
+### Finding the primary key
+
+If you are unsure which variable to add to find the primary key:
+
+-   Select cases with a non-unique combination of values on the
+    variables you selected so far for the primary key.
+-   Compare these cases on those variables that are NOT YET part of your
+    work-in-progress primary key: Which variable has different values
+    across cases?
+-   This is the variable that you should add to get a primary key.
+
+::: question
+1.  Use the code below to find out which variable must be added because
+    it has different values for the first pair of cases that have the
+    same `student` and `wave` values.
+2.  Add this variable to the code below. Any variable that must still be
+    added to obtain a primary key?
+:::
+
+```{r primarykey2, exercise = TRUE}
+# Display cases with the same provisional primary key as consecutive cases.
+GlasgowFriends |>
+  # (ADD HERE) for each combination of selected primary key variables...
+  group_by( student, wave, bestfriend ) |>
+  # ...calculate the number of cases with identical values on the grouping variables 
+  mutate(n_identical = n()) |> 
+  # retain only cases that are not unique on the selected variables (i.e. cases that identify this list of variables as incomplete primary key)
+  filter(n_identical > 1) |>
+  # (ALSO ADD HERE) sort the cases, so duplicates are next to each other
+  arrange( student, wave, bestfriend ) |> 
+  # show only the first two cases that are duplicates
+  ungroup() |>
+  slice(1:2)
+```
+
+### Identifying types of cases in a dataset
+
+Every variable in your primary key and every combination of these
+variables may represent a different type of case.
+
+Example: A primary key consisting of the variables `student` and `wave`.
+
+```{r}
+data.frame(
+  `Case type` = c("Student/person", "Wave", "Student per wave / wave per student"),
+  Variables = c("student, neighbourhood, age, sex, ...", "wave ID", "alcohol, cannabis, tobacco, ..."),
+  Notes = c("Fixed student characteristics", "Wave characteristics", "Student characteristics that may change between waves"),
+  `Split tibble?` = c("yes", "no (only wave ID)", "yes")
+  ) |>
+  knitr::kable(booktab = TRUE,
+               col.names = c("Case type", "Variables", "Notes", "Separate tibble?")
+               ) |> 
+  kableExtra::kable_styling(bootstrap_options = "striped", full_width = FALSE)
+```
+
+### 
+
+::: tip
+**Tip**
+
+Finding the variables that belong to a type of cases:
+
+1.  Use common sense: The variable is a characteristic of what?
+2.  Check that the variable has a unique value for each case of the
+    selected type (use the code below), e.g., for each student or each
+    student/wave combination.
+3.  The variable belongs to the simplest type of cases (identified by
+    fewest variables) satisfying the check in Step 2. For example,`age`
+    is fixed per student and per student-wave combination.
+:::
+
+::: question
+For each variable in `GlasgowFriends` determine to which type of case it
+belongs.
+:::
+
+```{r casetype, exercise = TRUE}
+# Code to check that a variable .var. always has the same value for each value
+# of the selected type of case .type. . Replace .var. by a variable name and
+# replace .type. by the variable(s) that define the type of case.
+GlasgowFriends |>
+  # For each value of the selected type of case...
+  group_by( .type. ) |>
+  # ... calculate the number of distinct values of the selected variable.
+  summarise(n_distinct = n_distinct( .var. ), .groups = "drop") |>
+  # Count number of distinct variable values per type of case: 
+  # If 1, then variable has unique value for each case.
+  count(n_distinct)
+```
+
+```{r casetype-hint-1}
+# Example: Checking that variable age is unique for each student-wave combination.
+GlasgowFriends |>
+  # For each value of the selected type of case...
+  group_by( student, wave ) |>
+  # ... calculate the number of distinct values of the selected variable.
+  summarise(n_distinct = n_distinct( age ), .groups = "drop") |>
+  # Count number of distinct variable values per type of case (grouping has been
+  # dropped): should always be 1.
+  count(n_distinct)
+# In the output of this code, 'n_distinct' gives the number of different ages
+# encountered per student per wave. Column 'n' gives the number (frequency) of
+# student per wave combinations.
+```
+
+```{r casetype-hint-2}
+# If 'age' is unique for each student-wave combination, it can also be unique for each student. If so, 'age' belongs to the student type of case, not the student per wave type of case.
+# Example: Checking that variable age is unique for each student-wave combination.
+GlasgowFriends |>
+  # For each value of the selected type of case...
+  group_by( student ) |>
+  # ... calculate the number of distinct values of the selected variable.
+  summarise(n_distinct = n_distinct( age ), .groups = "drop") |>
+  # Count number of distinct variable values per type of case (grouping has been dropped): should always be 1.
+  count(n_distinct)
+# In the output of this code, 'n_distinct' gives the number of different ages encountered per student. Column 'n' gives the number (frequency) of students.
+```
+
+### 
+
+::: tip
+**Programming Tip**
+
+-   Be systematic and precise!
+-   For example, if a primary key is defined as *the smallest set of
+    variables for which every case has a unique combination of values*,
+    check both parts of the definition:
+    (1) Every case has a unique combination of values,
+    (2) and this is the smallest set of variables for which 1 holds.
+:::
+
+### Splitting a tibble
+
+::: emphasis
+Tidy Rule 1. Each type of case must have its own tibble
+:::
+
+Create a separate tibble for each type of case.
+
+This way, each piece of information is stored only once:
+
+-   No notational variations, e.g., a person's ID number cannot be
+    different in different cases.
+-   Easy editing/updating: change/add a value only in one place.
+-   Max storage efficiency: no repetition of information.
+-   Information is stored by type of cases: easier to find.
+-   Any multilevel structure of the data (for statistical analysis) is
+    clear from the presence of different tibbles.
+
+### 
+
+::: question
+Use your data wrangling skills from Session 2 and the data
+transformation with dplyr cheat sheet to create a tibble for each type
+of case in `GlasgowFriends`:
+
+1.  Student.
+:::
+
+```{r studenttable, exercise = TRUE, exercise.lines = 6}
+# Your code to create a tibble for student information without duplicates.
+Student <- GlasgowFriends |> 
+  # select the relevant variables
+  select( ____ ) |> 
+  # only keep cases that are distinct (not identical)
+  distinct()
+```
+
+<!-- To hide the solution, use a textual hint. -->
+
+::: {#studenttable-hint}
+**Hint:** For now, include the neighbourhood variables in the Student
+tibble.
+:::
+
+```{r studenttable-solution}
+Student <- GlasgowFriends |> select(student, neighbourhood, schooldist, hoodname, age, sex, smoking_at_home, smoking_parents, smoking_siblings) |> distinct()
+```
+
+```{r studenttable-check}
+gradethis::grade_result(
+  pass_if(~ {nrow(.result) == 160 && ncol(.result) == 9 }, "Indeed, student, bestfriend, bfperiod, and bfwave belong together in this tibble."),
+  fail_if(~ nrow(.result) != 160, "The number of cases in the new tibble is not correct. You did not select the correct variables."),
+  fail_if(~ ncol(.result) != 9, "The number of variables in the new tibble is not correct. You did not select (all) correct variables.")
+)
+```
+
+### 
+
+::: question
+2.  StudentWave.
+:::
+
+```{r studentwavetable, exercise = TRUE, exercise.lines = 6}
+# Your code to create a tibble for student per wave information without duplicates.
+StudentWave <- GlasgowFriends |> 
+  # select the relevant variables
+  select( ____ ) |> 
+  # only keep cases that are distinct (not identical)
+  distinct()
+```
+
+<!-- To hide the solution, use a textual hint. -->
+
+::: {#studentwavetable-hint}
+**Hint:** It is a good custom to use the primary key variables as the
+first variables in a tibble.
+:::
+
+```{r studentwavetable-solution}
+StudentWave <- GlasgowFriends |> select(student, wave, alcohol, cannabis, money, romantic, friend_1, friend_2, friend_3, friend_4, friend_5, friend_6 ) |> distinct()
+```
+
+```{r studentwavetable-check}
+gradethis::grade_result(
+  pass_if(~ {nrow(.result) == 480 && ncol(.result) == 12 }, "Indeed, student, bestfriend, bfperiod, and bfwave belong together in this tibble."),
+  fail_if(~ nrow(.result) != 480, "The number of cases in the new tibble is not correct. You did not select the correct variables."),
+  fail_if(~ ncol(.result) != 12, "The number of variables in the new tibble is not correct. You did not select (all) correct variables.")
+)
+```
+
+### 
+
+::: question
+3.  StudentBestfriend.
+:::
+
+```{r bestfriendstable, exercise = TRUE, exercise.lines = 6}
+# Your code to create a tibble for best friends information without duplicates.
+StudentBestfriend <- GlasgowFriends |> 
+  # select the relevant variables
+  select( ____ ) |> 
+  # only keep cases that are distinct (not identical)
+  distinct()
+```
+
+<!-- To hide the solution, use a textual hint. -->
+
+::: {#bestfriendstable-hint}
+**Hint:** Include the `student` variable, otherwise we don't know who
+nominated the best friend.
+:::
+
+```{r bestfriendstable-solution}
+StudentBestfriend <- GlasgowFriends |> select(student, bestfriend, bfperiod, bfwave ) |> distinct()
+```
+
+```{r bestfriendstable-check}
+gradethis::grade_result(
+  pass_if(~ {nrow(.result) == 519 && ncol(.result) == 4 }, "Indeed, student, bestfriend, bfperiod, and bfwave belong together in this tibble."),
+  fail_if(~ nrow(.result) != 519, "The number of cases in the new tibble is not correct. You did not select the correct variables."),
+  fail_if(~ ncol(.result) != 4, "The number of variables in the new tibble is not correct. You did not select (all) correct variables.")
+)
+```
+
+### 
+
+Within the student tibble, the neighbourhood information is repeated:
+
+-   Neighbourhood is a type of cases that should be split off into a
+    separate tibble.
+-   You know how to do that by now.
+
+### Foreign key, one-to-many vs. many-to-many relations
+
+::: emphasis
+A foreign key is a variable in one table that is a primary key in
+another tibble. It helps us to link cases in the two tables to each
+other.
+:::
+
+-   Examples:
+    -   `student` ("s001", "s002", ...) links the *Student* tibble to
+        *StudentWave* and *StudentBestFriend*.
+    -   `neighbourhood` links the *Student* and *Neighbourhood* tibbles.
+
+```{r diagram0, out.width="60%", fig.asp=0.5, fig.cap="Figure. Relations between the tibbles. Variables that are (part of) the primary key of a tibble are underlined."}
+library(DiagrammeR)
+DiagrammeR::grViz("
+digraph database {
+    graph [rankdir = LR]
+    node [
+      shape=plaintext
+      fontname = 'Helvetica'
+    ]
+    Student [label=<
+<TABLE BORDER='0' CELLBORDER='1' CELLSPACING='0'>
+  <TR><TD BGCOLOR='black'><FONT COLOR='white'>Student</FONT></TD></TR>
+  <TR><TD PORT='f1'><U>student</U></TD></TR>
+  <TR><TD PORT='f2'>neighbourhood</TD></TR>
+  <TR><TD>age</TD></TR>
+  <TR><TD>sex</TD></TR>
+  <TR><TD>smoking_at_home</TD></TR>
+  <TR><TD>smoking_parents</TD></TR>
+  <TR><TD>smoking_siblings</TD></TR>
+</TABLE>>];
+    StudentBestfriend [label=<
+<TABLE BORDER='0' CELLBORDER='1' CELLSPACING='0'>
+  <TR><TD BGCOLOR='black'><FONT COLOR='white'>StudentBestfriend</FONT></TD></TR>
+  <TR><TD PORT='f1'><U>student</U></TD></TR>
+  <TR><TD><U>bestfriend</U></TD></TR>
+  <TR><TD><U>bfperiod</U></TD></TR>
+  <TR><TD>bfwave</TD></TR>
+</TABLE>>];
+    Neighbourhood [label=<
+<TABLE BORDER='0' CELLBORDER='1' CELLSPACING='0'>
+  <TR><TD BGCOLOR='black'><FONT COLOR='white'>Neighbourhood</FONT></TD></TR>
+  <TR><TD PORT='f1'><U>neighbourhood</U></TD></TR>
+  <TR><TD>schooldist</TD></TR>
+  <TR><TD>hoodname</TD></TR>
+</TABLE>>];
+    StudentWave [label=<
+<TABLE BORDER='0' CELLBORDER='1' CELLSPACING='0'>
+  <TR><TD BGCOLOR='black'><FONT COLOR='white'>StudentWave</FONT></TD></TR>
+  <TR><TD PORT='f1'><U>student</U></TD></TR>
+  <TR><TD PORT='f2'><U>wave</U></TD></TR>
+  <TR><TD>alcohol</TD></TR>
+  <TR><TD>cannabis</TD></TR>
+  <TR><TD>money</TD></TR>
+  <TR><TD>romantic</TD></TR>
+</TABLE>>];
+    Neighbourhood:f1 -> Student:f2 ;
+    Student:f1 -> StudentBestfriend:f1;
+    Student:f1 -> StudentWave:f1
+}
+")
+```
+
+*Types of relations between tibbles:*
+
+1.  *One-to-many relation*: Joining Student and Neighborhood tables on
+    `neighborhood`. Each neighborhood occurs once in Neighborhood, but
+    might occur multiple times in Students with multiple students living
+    in the same neighborhoods.
+
+2.  *Many-to-many relation*: Occurs when the foreign key - used to join
+    two tables, is not a primary key in either table. Leads to untidy
+    tables with lots of rows, but is sometimes necessary. (R will print
+    a warning if you attempt a many-to-many join).
+
+## 2. Each observation must have its own row.
+
+For each student in each wave, up to six friends could be mentioned.
+
+```{r showfriends}
+GlasgowFriends |> 
+  select(student, wave, friend_1, friend_2, friend_3, friend_4, friend_5, friend_6 ) |> 
+  distinct() |>
+  slice(1:6) |>
+  kable(booktabs = TRUE) |>
+  kableExtra::kable_classic(full_width = FALSE) |>
+  kableExtra::column_spec(4, color = c("red", "black", "black", "red", "black", "black")) |>
+  kableExtra::column_spec(5, color = c("black", "black", "red", "black", "black", "black"))
+```
+
+Problems:
+
+-   Many cells with missing values (`NA`). Waste of space!
+-   The same student may appear in each of the six friendship variables
+    (e.g., `s028`). Hard to count!
+-   The variable names contain a number (`friend_1`, `friend_2`, ...).
+    But numbers are values (first mentioned friend, second mentioned
+    friend, ...). How can we use these?
+
+### 
+
+### 
+
+The tidy solution:
+
+-   Stack repeated information.
+-   Yields one row (observation) per student per wave per nominated
+    friend.
+
+```{r showfriendsgathered}
+GlasgowFriends |> 
+  select(student, wave, friend_1, friend_2, friend_3, friend_4, friend_5, friend_6 ) |>
+  gather(key = "friendnumber", value = "friend", friend_1:friend_6, na.rm = TRUE) |>
+  distinct() |>
+  arrange(student, wave, friendnumber) |>
+  slice(1:6) |>
+  kable(booktabs = TRUE) |>
+  kableExtra::kable_classic(full_width = FALSE) |>
+  kableExtra::column_spec(4, color = c("black", "red", "black", "black", "black", "black"))
+```
+
+::: question
+Use the tidyverse `pivot_longer()` function to create a new tibble named
+`StudentWaveFriend` containing one row (observation) per student per
+wave per nominated friend. The tibble should only contain the same
+variables as in the above table.
+:::
+
+```{r gatherfriends, exercise = TRUE, exercise.setup = "studentwavetable-solution"}
+StudentWaveFriend <- StudentWave |> 
+  pivot_longer( ____ ) |>
+  select()
+#Show result.
+StudentWaveFriend
+```
+
+::: {#gatherfriends-hint}
+**Hint:** Use help on the pivot_longer() function .
+:::
+
+```{r gatherfriends-solution}
+StudentWaveFriend <- StudentWave |> pivot_longer( friend_1:friend_6, names_to = "friendnumber", values_to = "friend", values_drop_na = TRUE ) |> select( student, wave, friendnumber, friend )
+```
+
+```{r gatherfriends-check}
+gradethis::grade_result(
+  fail_if(~ nrow(StudentWaveFriend) > 1600, "Did you remove the rows with missing values for the friend variable? These rows are superfluous. Use an argument in the `pivot_longer()` function to remove the rows."),
+  fail_if(~ ("alcohol" %in% names(StudentWaveFriend)) | ("cannabis" %in% names(StudentWaveFriend)) | ("money" %in% names(StudentWaveFriend)) | ("romantic" %in% names(StudentWaveFriend)), "Drop the student characteristics that have only one value per student per wave: alcohol, cannabis, and so on. Why are they untidy in the new tibble?"),
+  fail_if(~ ncol(StudentWaveFriend) < 4, "Did you select the relevant variables in the end: student, wave, and friend?"),
+  pass_if(~ TRUE, "You retained the cases and variables that matter.")
+)
+```
+
+### 
+
+::: question
+Oh, and remove the friendship data from tibble `StudentWave`.
+:::
+
+```{r gatherfriends2, exercise = TRUE, exercise.setup = "studentwavetable-solution"}
+StudentWave <- StudentWave |> 
+  ???
+```
+
+<div>
+
+**Hint:** How about using the select() function?
+
+</div>
+
+```{r gatherfriends2-solution, eval=FALSE}
+StudentWave <- StudentWave |> select(student:romantic)
+```
+
+```{r gatherfriends2-check}
+gradethis::grade_result(
+  fail_if(~ str_starts(names(StudentWave)[ncol(StudentWave)], "friend"), "There is still a friendship variable in the `StudentWave` tibble. Did you not overwrite this tibble?"),
+  pass_if(~ ncol(StudentWave) == 6, "")
+)
+```
+
+### Optional: `pivot_longer()` exercise
+
+```{r pivotlonger-setup}
+# create a tibble with waves as different columns
+GlasgowWide <- UsingRTutorials::Glasgow |>
+  pivot_wider(id_cols = student:smoking_siblings, names_from = wave, values_from = alcohol:friendships)
+```
+
+Tibble `GlasgowWide` contains the data in the original panel wave
+format. (This tibble is loaded in this tutorial.)
+
+::: question
+Use the `pivot_longer()` function to gather the information measured per
+wave in tibble `GlasgowWide`: smoking, alcohol, cannabis, and tobacco
+use, pocket money, romantic relations, and number of friendships.
+:::
+
+Note: Send the gathered tibble to the screen, do not store it in a new
+data object (so the code checker can do its work).
+
+```{r pivotlonger, exercise = TRUE}
+# Tip: Have a look at the data first.
+GlasgowWide
+
+```
+
+::: {#pivotlonger-hint}
+**Hint:** Read the vignette: Issue the R command `vignette("pivot")`.
+Look for the part on multiple observations per row.
+:::
+
+```{r pivotlonger-solution}
+GlasgowWide |> pivot_longer(cols = alcohol_t2:friendships_t1, names_to = c(".value", "wave"), names_sep = "_")
+```
+
+```{r pivotlonger-check}
+gradethis::grade_code(
+  correct = "", 
+  incorrect = "Carefully read the part on multiple observations per row in the pivot vignette."
+  )
+```
+
+## Up Next
+
+-   Catch up (review Session 2 content)
+-   Check-in with your Study Buddy
+-   Prepare (see Canvas Module Guide):
+    -   Complete the homework (homework room, study buddy, alone...)
+
+    -   Group Work: Start now with SCRUM(-light)
+
+    -   Submit questions by 4 PM the day before each tutorial on the
+        Canvas Discussion Forum
