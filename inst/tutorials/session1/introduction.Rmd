@@ -101,14 +101,6 @@ consumers <- UsingRTutorials::consumers #
 -   Commitment (be pro-active, challenge yourself)
 -   Curiosity (ask, explore)
 
-### Who are you?
-
-Tell us about yourself:
-
-1.  What's your name?
-
-2.  What is one fun fact about yourself?
-
 ### Experience Levels
 
 ```{r out.width="100%"}
@@ -228,11 +220,11 @@ be used.
 
 ```{r schedule, echo=FALSE}
 data.frame(Week = c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7),
-           Date = c("Oct 28", "Oct 30", "Nov 4",
-                    "Nov 6", "Nov 11", "Nov 13",
-                    "Nov 18", "Nov 20", "Nov 25",
-                    "Nov 27", "Dec 2", "Dec 4",
-                    "Dec 9", "Dec 11"),
+           Date = c("Oct 27", "Oct 29", "Nov 3",
+                    "Nov 5", "Nov 10", "Nov 12",
+                    "Nov 17", "Nov 19", "Nov 24",
+                    "Nov 26", "Dec 1", "Dec 3",
+                    "Dec 8", "Dec 10"),
            Topics = c(
              " Welcome, Basics, and First Visualizations",
              " Data Wrangling (dplyr::) & Introduction to Quarto",
@@ -255,11 +247,11 @@ data.frame(Week = c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7),
 
 **Deadlines:**
 
--   Data Project - Group part: November 19th, 2025, 6 PM
+-   Data Project - Group part: November 18th, 2026, 6 PM
 
--   Data Project - Individual part: December 5th, 2025, 6 PM
+-   Data Project - Individual part: December 2th, 2026, 6 PM
 
--   Exam: December 12th, 2025
+-   Exam: December 11th, 2026
 
 ### Grading
 
@@ -284,12 +276,10 @@ The data project consists of a collective effort (the group part) and an
 individual effort (the individual part). The two parts will be submitted
 and graded separately according to the rubric available on Canvas.
 
-Exploratory analysis of a complex data set: Showcase your R skills.
-
--   Groups of 4 or 5 students.
--   Group effort: Tidying the dataset.
+-   Groups of 4-5 students.
+-   Group effort: Tidying the dataset. Show basic R skills and collaboration.
 -   Individual effort: Print-ready presentation of one data
-    visualization per student based on the tidy data.
+    visualization per student based on the tidy data. (Grading requirements concern basic skills, but possibilities are endless!)
 -   Reproducible: All steps from raw data to final results (Quarto).
 
 ### Telling a Visual Story in R
@@ -340,7 +330,7 @@ Books:
 Learning to code effectively means learning by doing!
 :::
 
--   Homework (Mondays, with buddy or individually): Prepare for class
+-   Homework (with buddy or individually): Prepare for class, request review by 4 PM the day before class.
 -   Tutorials: Test yourself, practice, discuss and ask questions
 -   Some sessions: Review, practice, group work, or Q&A
 
@@ -363,42 +353,16 @@ Recommendations
 
 We will randomly assign a suggested study buddy to you on Canvas.
 
-### SCRUM(-Light)
+### Organization of Collaborative Work
 
-To help you accomplish the complex group project in the short time we
-have in this course, we will use an adjusted version of a project
-management procedure called SCRUM (*here: SCRUM-light*). This procedure
-helps you plan and continuously evaluate your work as a group in
-so-called sprints (1-week intervals).
-
-SCRUM is a framework for managing teamwork in a **systematic** and
-**empirically informed** manner.
-
-What is SCRUM(-Light)?
-
--   1-week *"Sprints"*.
--   **Sprint**: Plan, complete tasks, evaluate.
--   *SCRUM master*: Oversees and facilitates the *Sprint*.
--   Planning support on Canvas.
-
-Why SCRUM(-Light)?
-
--   Managing a complex team project is difficult!
--   Projects tend to be completed last minute and dominated by some
-    students.
--   SCRUM is used by professional teams worldwide.
-
-Process
-
--   See Syllabus for Group Work Guide and What-to-do-when list.
-
--   Complete short surveys to plan evaluate the previous sprint and plan
-    the upcoming one on Mondays (by 6 PM).
+Organize group work through: 
+1. What-to-do-when list
+2. Per week (Mondays by 6 PM): planning & evaluation moments
 
 Evaluation
 
--   Group Collaboration Quality criterion (complete/incomplete for 8
-    planning/evaluation surveys)
+-   Group Collaboration Quality criterion (complete/incomplete for 8 planning/evaluation surveys)
+-   Fairness adjustment
 
 ### Teaming Up for the Data Project
 
@@ -449,7 +413,7 @@ In addition, install this tutorial:
     -   This should also install the `learnr` package.
     -   Be patient! Wait for the message `DONE (gradethis)`.
 -   Install the tutorials:
-    `remotes::install_github("csch0lz/UsingRTutorials_GSC",ref="2025/26")`
+    `remotes::install_github("remotes::install_github('xgaouva/usingrtutorial2026')`
     -   Answer `no` to question
         `Do you want to install from sources the package which needs compilation?`.
     -   Wait for the message `DONE (UsingRTutorials)`.
@@ -1209,8 +1173,7 @@ Book on ggplot2:
 -   Catch up (review Session 1 content)
 -   Contact your Study Buddy
 -   Prepare (see Canvas Module Guide):
-    -   Complete the homework (homework room, study buddy, alone...)
-    -   Group Work: Plan Sprint 1 by 6 PM tomorrow (Check the Group Work
+    -   Complete the homework (study buddy, alone...)
+    -   Group Work: Plan the first week by 6 PM tomorrow (Check the Group Work
         Guide on Canvas)
-    -   Submit questions by 4 PM the day before each tutorial on the
-        Canvas Discussion Forum
+    -   Submit questions by 6 PM the day before each tutorial by completing the Canvas survey
